@@ -1,0 +1,206 @@
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Alert,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import * as Haptics from 'expo-haptics';
+import { colors, typography, spacing, radius } from '@theme/index';
+import { TransactionType } from '@/types';
+import { useCategoryStore } from '@store/category-store';
+import { Input } from '@ui/input';
+import { Button } from '@ui/button';
+import { isValidCategoryName } from '@utils/validators';
+
+const ICON_OPTIONS = [
+  'food', 'car', 'home', 'heart-pulse', 'school', 'gamepad-variant',
+  'shopping', 'cash-multiple', 'laptop', 'trending-up', 'airplane',
+  'music', 'book-open', 'gym', 'coffee', 'phone', 'wifi',
+  'gas-station', 'hospital-building', 'account-group', 'gift',
+  'dots-horizontal', 'plus-circle',
+];
+
+const COLOR_OPTIONS = [
+  '#F97316', '#3B82F6', '#8B5CF6', '#EF4444', '#06B6D4',
+  '#EC4899', '#F59E0B', '#4ADE80', '#34D399', '#C6F135',
+  '#6B7280', '#14B8A6', '#F43F5E', '#A855F7', '#0EA5E9',
+];
+
+export default function NewCategoryModal() {
+  const addCategory = useCategoryStore((s) => s.addCategory);
+
+  const [name, setName] = useState('');
+  const [type, setType] = useState<TransactionType>('expense');
+  const [icon, setIcon] = useState(ICON_OPTIONS[0]);
+  const [color, setColor] = useState(COLOR_OPTIONS[0]);
+  const [error, setError] = useState('');
+
+  function handleSave() {
+    if (!isValidCategoryName(name)) {
+      setError('Nome deve ter entre 2 e 30 caracteres');
+      return;
+    }
+    setError('');
+    addCategory({ name: name.trim(), type, icon, color });
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    router.back();
+  }
+
+  return (
+    <SafeAreaView style={styles.safe} edges={['top']}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Nova categoria</Text>
+        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+          <MaterialCommunityIcons name="close" size={24} color={colors.text.secondary} />
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <Input label="Nome" value={name} onChangeText={setName} placeholder="Ex: Academia, Pet..." maxLength={30} />
+
+        {/* Tipo */}
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>Tipo</Text>
+          <View style={styles.typeRow}>
+            {(['expense', 'income'] as TransactionType[]).map((t) => (
+              <TouchableOpacity
+                key={t}
+                style={[styles.typeBtn, type === t && styles.typeBtnActive]}
+                onPress={() => setType(t)}
+                activeOpacity={0.8}
+              >
+                <Text style={[styles.typeText, type === t && styles.typeTextActive]}>
+                  {t === 'expense' ? 'Despesa' : 'Receita'}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* Preview */}
+        <View style={styles.preview}>
+          <View style={[styles.previewIcon, { backgroundColor: color + '22' }]}>
+            <MaterialCommunityIcons name={icon as any} size={28} color={color} />
+          </View>
+          <Text style={[styles.previewName, { color }]}>{name || 'Nova categoria'}</Text>
+        </View>
+
+        {/* Cores */}
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>Cor</Text>
+          <View style={styles.colorGrid}>
+            {COLOR_OPTIONS.map((c) => (
+              <TouchableOpacity
+                key={c}
+                style={[styles.colorDot, { backgroundColor: c }, color === c && styles.colorDotActive]}
+                onPress={() => setColor(c)}
+                activeOpacity={0.8}
+              />
+            ))}
+          </View>
+        </View>
+
+        {/* Ícones */}
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>Ícone</Text>
+          <View style={styles.iconGrid}>
+            {ICON_OPTIONS.map((i) => (
+              <TouchableOpacity
+                key={i}
+                style={[styles.iconBtn, icon === i && styles.iconBtnActive]}
+                onPress={() => setIcon(i)}
+                activeOpacity={0.8}
+              >
+                <MaterialCommunityIcons
+                  name={i as any}
+                  size={22}
+                  color={icon === i ? color : colors.text.secondary}
+                />
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {error ? <Text style={styles.error}>{error}</Text> : null}
+
+        <Button label="Criar categoria" onPress={handleSave} size="lg" />
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: colors.background.primary },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: spacing['2xl'],
+    paddingVertical: spacing.lg,
+  },
+  title: { ...typography.heading.lg, color: colors.text.primary },
+  content: { padding: spacing['2xl'], gap: spacing.xl, paddingBottom: spacing['4xl'] },
+  section: { gap: spacing.sm },
+  sectionLabel: { ...typography.label.md, color: colors.text.secondary },
+  typeRow: {
+    flexDirection: 'row',
+    backgroundColor: colors.background.tertiary,
+    borderRadius: radius.md,
+    padding: 4,
+    gap: 4,
+  },
+  typeBtn: {
+    flex: 1,
+    paddingVertical: spacing.sm,
+    alignItems: 'center',
+    borderRadius: radius.sm,
+  },
+  typeBtnActive: { backgroundColor: colors.background.secondary },
+  typeText: { ...typography.label.lg, color: colors.text.tertiary },
+  typeTextActive: { color: colors.text.primary, fontWeight: '600' },
+  preview: {
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.lg,
+  },
+  previewIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: radius.xl,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  previewName: { ...typography.heading.md },
+  colorGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  colorDot: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.full,
+  },
+  colorDotActive: {
+    borderWidth: 3,
+    borderColor: colors.white,
+  },
+  iconGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  iconBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.background.tertiary,
+    borderWidth: 1,
+    borderColor: colors.border.default,
+  },
+  iconBtnActive: {
+    borderColor: colors.accent.primary + '66',
+    backgroundColor: colors.accent.muted,
+  },
+  error: { ...typography.body.sm, color: colors.semantic.expense, textAlign: 'center' },
+});
