@@ -14,6 +14,7 @@ export default function ModalsLayout() {
       <Stack.Screen name="edit-transaction" />
       <Stack.Screen name="new-category" />
       <Stack.Screen name="edit-category" />
+      <Stack.Screen name="import-csv" />
     </Stack>
   );
 }

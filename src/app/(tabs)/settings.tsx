@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { colors, typography, spacing, radius } from '@theme/index';
 import { usePreferencesStore } from '@store/preferences-store';
 import { useTransactionStore } from '@store/transaction-store';
@@ -99,6 +100,20 @@ export default function SettingsScreen() {
           </View>
         </View>
 
+        {/* Importar */}
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>Dados</Text>
+          <TouchableOpacity
+            style={styles.actionBtn}
+            onPress={() => router.push('/(modals)/import-csv')}
+            activeOpacity={0.8}
+          >
+            <MaterialCommunityIcons name="file-import-outline" size={18} color={colors.accent.primary} />
+            <Text style={styles.actionText}>Importar extrato CSV</Text>
+            <MaterialCommunityIcons name="chevron-right" size={18} color={colors.text.tertiary} />
+          </TouchableOpacity>
+        </View>
+
         {/* Zona de perigo */}
         <View style={styles.section}>
           <Text style={[styles.sectionLabel, { color: colors.semantic.expense }]}>Zona de perigo</Text>
@@ -163,6 +178,21 @@ const styles = StyleSheet.create({
   rowLabel: { ...typography.body.md, color: colors.text.primary },
   rowValue: { ...typography.body.md, color: colors.text.secondary },
   divider: { height: 1, backgroundColor: colors.border.subtle },
+  actionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.background.secondary,
+    borderRadius: radius.md,
+    padding: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.border.default,
+  },
+  actionText: {
+    ...typography.label.lg,
+    color: colors.text.primary,
+    flex: 1,
+  },
   dangerBtn: {
     flexDirection: 'row',
     alignItems: 'center',
