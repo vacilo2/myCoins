@@ -21,7 +21,7 @@ import { isValidCategoryName } from '@utils/validators';
 const ICON_OPTIONS = [
   'food', 'car', 'home', 'heart-pulse', 'school', 'gamepad-variant',
   'shopping', 'cash-multiple', 'laptop', 'trending-up', 'airplane',
-  'music', 'book-open', 'gym', 'coffee', 'phone', 'wifi',
+  'music', 'book-open-variant', 'dumbbell', 'coffee', 'phone', 'wifi',
   'gas-station', 'hospital-building', 'account-group', 'gift',
   'dots-horizontal', 'plus-circle',
 ];
