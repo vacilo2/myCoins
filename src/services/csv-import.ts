@@ -22,6 +22,7 @@ const DESC_ALIASES = [
   'descricao', 'descricção', 'descricão', 'historico', 'histórico',
   'lancamento', 'lançamento', 'description', 'memo', 'desc',
   'details', 'narrative', 'estabelecimento', 'beneficiario',
+  'title', 'titulo', 'nome', 'comercio', 'loja', 'merchant',
 ];
 const AMOUNT_ALIASES = ['valor', 'amount', 'value', 'quantia', 'montante'];
 const DEBIT_ALIASES = ['debito', 'débito', 'debit', 'saida', 'saída', 'deducao', 'dedução'];
@@ -181,6 +182,22 @@ export function parseCSV(content: string): ParsedRow[] {
 
   if (headerIdx < 0) return [];
 
+  // Detectar convenção de sinal: se maioria dos valores é positiva → crédito (Nubank style)
+  // positivo = despesa, negativo = receita. Caso contrário, negativo = despesa.
+  let positiveCount = 0;
+  let negativeCount = 0;
+  if (amountCol >= 0) {
+    for (let i = headerIdx + 1; i < Math.min(headerIdx + 20, lines.length); i++) {
+      const cells = splitCSVLine(lines[i], delimiter);
+      const raw = cells[amountCol]?.trim() ?? '';
+      const val = parseFloat(raw.replace(/[^\d.,-]/g, '').replace(',', '.'));
+      if (!isNaN(val)) { val >= 0 ? positiveCount++ : negativeCount++; }
+    }
+  }
+  // Se >60% são positivos → convenção de cartão (positivo = despesa)
+  const total = positiveCount + negativeCount;
+  const creditCardMode = total > 0 && positiveCount / total > 0.6;
+
   const rows: ParsedRow[] = [];
 
   for (let i = headerIdx + 1; i < lines.length; i++) {
@@ -196,11 +213,19 @@ export function parseCSV(content: string): ParsedRow[] {
 
     if (amountCol >= 0) {
       amountRaw = cells[amountCol]?.trim() ?? '';
+      const numVal = parseFloat(amountRaw.replace(/[^\d.,-]/g, '').replace(',', '.'));
       const isNegative =
         amountRaw.startsWith('-') ||
         amountRaw.startsWith('(') ||
-        parseFloat(amountRaw.replace(/[^\d.,-]/g, '').replace(',', '.')) < 0;
-      type = isNegative ? 'expense' : 'income';
+        numVal < 0;
+
+      if (creditCardMode) {
+        // Nubank/cartão: positivo = despesa, negativo = receita
+        type = isNegative ? 'income' : 'expense';
+      } else {
+        // Conta corrente: negativo = despesa, positivo = receita
+        type = isNegative ? 'expense' : 'income';
+      }
     } else if (debitCol >= 0 && creditCol >= 0) {
       const debit = cells[debitCol]?.trim() ?? '';
       const credit = cells[creditCol]?.trim() ?? '';
