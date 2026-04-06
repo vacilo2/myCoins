@@ -24,6 +24,11 @@
       },
       "package": "com.vacilo2.mycoins"
     },
+    "web": {
+      "favicon": "./assets/images/favicon.png",
+      "backgroundColor": "#0A0A0F",
+      "bundler": "metro"
+    },
     "plugins": [
       "expo-router",
       "expo-font",
