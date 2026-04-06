@@ -18,9 +18,16 @@ import { TopCategories } from '@/components/dashboard/top-categories';
 import { TransactionCard } from '@/components/transaction/transaction-card';
 import { useCategoryStore } from '@store/category-store';
 import { getPreviousMonth, getNextMonth, formatMonthYear } from '@utils/date';
+import { useUIStore } from '@store/ui-store';
 
 export default function DashboardScreen() {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const setSelectedDate = useUIStore((s) => s.setSelectedDate);
+
+  function handleMonthChange(date: Date) {
+    setCurrentDate(date);
+    setSelectedDate(date.getMonth() + 1, date.getFullYear());
+  }
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth() + 1;
 
@@ -52,14 +59,14 @@ export default function DashboardScreen() {
         {/* Navegação de mês */}
         <View style={styles.monthNav}>
           <TouchableOpacity
-            onPress={() => setCurrentDate(getPreviousMonth(currentDate))}
+            onPress={() => handleMonthChange(getPreviousMonth(currentDate))}
             hitSlop={12}
           >
             <MaterialCommunityIcons name="chevron-left" size={24} color={colors.text.secondary} />
           </TouchableOpacity>
           <Text style={styles.monthText}>{formatMonthYear(currentDate)}</Text>
           <TouchableOpacity
-            onPress={() => setCurrentDate(getNextMonth(currentDate))}
+            onPress={() => handleMonthChange(getNextMonth(currentDate))}
             hitSlop={12}
           >
             <MaterialCommunityIcons name="chevron-right" size={24} color={colors.text.secondary} />

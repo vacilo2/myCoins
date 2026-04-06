@@ -23,6 +23,7 @@ import { Button } from '@ui/button';
 import { formatCurrency, parseCurrencyInput } from '@utils/currency';
 import { toISODate } from '@utils/date';
 import { isValidAmount } from '@utils/validators';
+import { useUIStore } from '@store/ui-store';
 
 interface TransactionFormProps {
   existing?: Transaction;
@@ -34,12 +35,23 @@ export function TransactionForm({ existing }: TransactionFormProps) {
   const deleteTransaction = useTransactionStore((s) => s.deleteTransaction);
   const getCategoriesByType = useCategoryStore((s) => s.getCategoriesByType);
   const currency = usePreferencesStore((s) => s.preferences.currency);
+  const selectedMonth = useUIStore((s) => s.selectedMonth);
+  const selectedYear = useUIStore((s) => s.selectedYear);
+
+  function defaultDate() {
+    if (existing) return existing.date.split('T')[0];
+    const now = new Date();
+    const day = now.getMonth() + 1 === selectedMonth && now.getFullYear() === selectedYear
+      ? now.getDate()
+      : 1;
+    return toISODate(new Date(selectedYear, selectedMonth - 1, day));
+  }
 
   const [type, setType] = useState<TransactionType>(existing?.type ?? 'expense');
   const [amountText, setAmountText] = useState(existing ? String(existing.amount) : '');
   const [description, setDescription] = useState(existing?.description ?? '');
   const [categoryId, setCategoryId] = useState(existing?.categoryId ?? '');
-  const [date, setDate] = useState(existing?.date.split('T')[0] ?? toISODate(new Date()));
+  const [date, setDate] = useState(defaultDate);
   const [error, setError] = useState('');
 
   const categories = getCategoriesByType(type);
