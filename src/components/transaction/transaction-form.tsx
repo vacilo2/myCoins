@@ -20,6 +20,7 @@ import { useCategoryStore } from '@store/category-store';
 import { usePreferencesStore } from '@store/preferences-store';
 import { Input } from '@ui/input';
 import { Button } from '@ui/button';
+import { DatePickerField } from '@ui/date-picker-field';
 import { formatCurrency, parseCurrencyInput } from '@utils/currency';
 import { toISODate } from '@utils/date';
 import { isValidAmount } from '@utils/validators';
@@ -156,14 +157,10 @@ export function TransactionForm({ existing }: TransactionFormProps) {
         />
 
         {/* Data */}
-        <Input
+        <DatePickerField
           label="Data"
           value={date}
-          onChangeText={setDate}
-          placeholder="YYYY-MM-DD"
-          leftIcon={
-            <MaterialCommunityIcons name="calendar" size={18} color={colors.text.tertiary} />
-          }
+          onChange={setDate}
         />
 
         {/* Categorias */}
