@@ -13,9 +13,11 @@ import { EmptyState } from '@ui/empty-state';
 
 export default function CategoriesScreen() {
   const [tab, setTab] = useState<TransactionType>('expense');
-  const categories = useCategoryStore((s) => s.getCategoriesByType(tab));
+  const allCategories = useCategoryStore((s) => s.categories);
   const deleteCategory = useCategoryStore((s) => s.deleteCategory);
   const transactions = useTransactionStore((s) => s.transactions);
+
+  const categories = allCategories.filter((c) => c.type === tab || c.type === 'both');
 
   function getTransactionCount(categoryId: string) {
     return transactions.filter((t) => t.categoryId === categoryId).length;

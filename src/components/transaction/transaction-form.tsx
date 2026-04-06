@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  TextInput,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -122,12 +123,14 @@ export function TransactionForm({ existing }: TransactionFormProps) {
         {/* Valor */}
         <View style={styles.amountWrapper}>
           <Text style={styles.currencySymbol}>{currency === 'BRL' ? 'R$' : '$'}</Text>
-          <Input
+          <TextInput
             value={amountText}
             onChangeText={setAmountText}
             placeholder="0,00"
-            keyboardType="numeric"
+            placeholderTextColor={colors.text.tertiary}
+            keyboardType="decimal-pad"
             style={styles.amountInput}
+            returnKeyType="done"
           />
         </View>
 
@@ -243,6 +246,8 @@ const styles = StyleSheet.create({
     ...typography.display.md,
     color: colors.text.primary,
     flex: 1,
+    paddingVertical: spacing.sm,
+    minHeight: 52,
   },
   section: {
     gap: spacing.sm,
