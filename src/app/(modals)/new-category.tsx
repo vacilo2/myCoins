@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  TextInput,
+  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -20,22 +22,11 @@ import { CategoryIcon } from '@ui/category-icon';
 import { isValidCategoryName } from '@utils/validators';
 
 const ICON_OPTIONS = [
-  // Alimentação
-  '🍔','🍕','🍣','🥗','🍜','🥩','🍱','☕','🧃','🍺','🥐','🍰',
-  // Transporte
-  '🚗','🚌','🏍️','✈️','🚂','🛵','🚕','⛽',
-  // Casa & Contas
-  '🏠','💡','💧','📱','📺','🛒','🔧','🏢',
-  // Saúde
-  '❤️','💊','🏥','🧘','🏋️','🦷','👁️','🩺',
-  // Lazer & Cultura
-  '🎮','🎵','🎬','📚','⚽','🎨','🎭','🎤',
-  // Finanças & Trabalho
-  '💰','💳','📈','💼','🏦','🎁','💸','🪙',
-  // Pessoas & Estilo
-  '👶','🐾','✂️','👗','💄','🧴','🏫','🤝',
-  // Outros
-  '🌱','🌍','⭐','🔔','📦','🗂️','❓','➕',
+  'food', 'car', 'home', 'heart-pulse', 'school', 'gamepad-variant',
+  'shopping', 'cash-multiple', 'laptop', 'trending-up', 'airplane',
+  'music', 'book-open-variant', 'dumbbell', 'coffee', 'phone', 'wifi',
+  'gas-station', 'hospital-building', 'account-group', 'gift',
+  'dots-horizontal',
 ];
 
 const COLOR_OPTIONS = [
@@ -52,6 +43,8 @@ export default function NewCategoryModal() {
   const [icon, setIcon] = useState(ICON_OPTIONS[0]);
   const [color, setColor] = useState(COLOR_OPTIONS[0]);
   const [error, setError] = useState('');
+  const [emojiModalOpen, setEmojiModalOpen] = useState(false);
+  const [emojiInput, setEmojiInput] = useState('');
 
   function handleSave() {
     if (!isValidCategoryName(name)) {
@@ -129,15 +122,62 @@ export default function NewCategoryModal() {
                 onPress={() => setIcon(i)}
                 activeOpacity={0.8}
               >
-                <CategoryIcon
-                  icon={i}
-                  size={22}
-                  color={icon === i ? color : colors.text.secondary}
-                />
+                <CategoryIcon icon={i} size={22} color={icon === i ? color : colors.text.secondary} />
               </TouchableOpacity>
             ))}
+
+            {/* Emoji customizado já adicionado */}
+            {icon && !/^[a-z0-9-]+$/.test(icon) && !ICON_OPTIONS.includes(icon) && (
+              <TouchableOpacity
+                style={[styles.iconBtn, styles.iconBtnActive]}
+                onPress={() => setEmojiModalOpen(true)}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.emojiText}>{icon}</Text>
+              </TouchableOpacity>
+            )}
+
+            {/* Botão + para adicionar emoji */}
+            <TouchableOpacity
+              style={styles.iconBtnAdd}
+              onPress={() => { setEmojiInput(''); setEmojiModalOpen(true); }}
+              activeOpacity={0.8}
+            >
+              <MaterialCommunityIcons name="plus" size={20} color={colors.accent.primary} />
+            </TouchableOpacity>
           </View>
         </View>
+
+        {/* Modal de emoji customizado */}
+        <Modal visible={emojiModalOpen} transparent animationType="fade" onRequestClose={() => setEmojiModalOpen(false)}>
+          <TouchableOpacity style={styles.emojiOverlay} activeOpacity={1} onPress={() => setEmojiModalOpen(false)} />
+          <View style={styles.emojiSheet}>
+            <Text style={styles.emojiSheetTitle}>Adicionar emoji</Text>
+            <Text style={styles.emojiSheetSub}>Abra o teclado de emojis e selecione um</Text>
+            <TextInput
+              value={emojiInput}
+              onChangeText={(v) => setEmojiInput(v.slice(-2))}
+              style={styles.emojiInput}
+              placeholder="😀"
+              placeholderTextColor={colors.text.tertiary}
+              autoFocus
+            />
+            <View style={styles.emojiActions}>
+              <TouchableOpacity
+                style={[styles.emojiConfirm, { opacity: emojiInput ? 1 : 0.4 }]}
+                onPress={() => {
+                  if (emojiInput.trim()) {
+                    setIcon(emojiInput.trim());
+                    setEmojiModalOpen(false);
+                  }
+                }}
+                disabled={!emojiInput}
+              >
+                <Text style={styles.emojiConfirmText}>Usar este emoji</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
@@ -215,4 +255,44 @@ const styles = StyleSheet.create({
     backgroundColor: colors.accent.muted,
   },
   error: { ...typography.body.sm, color: colors.semantic.expense, textAlign: 'center' },
+
+  // Botão + para emoji
+  iconBtnAdd: {
+    width: 44, height: 44, borderRadius: radius.sm,
+    alignItems: 'center', justifyContent: 'center',
+    backgroundColor: colors.accent.muted,
+    borderWidth: 1, borderColor: colors.accent.primary + '55',
+    borderStyle: 'dashed',
+  },
+  emojiText: { fontSize: 22, textAlign: 'center' },
+
+  // Modal emoji
+  emojiOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' },
+  emojiSheet: {
+    backgroundColor: colors.background.secondary,
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
+    padding: spacing['2xl'],
+    gap: spacing.lg,
+    paddingBottom: 40,
+  },
+  emojiSheetTitle: { ...typography.heading.md, color: colors.text.primary, textAlign: 'center' },
+  emojiSheetSub: { ...typography.body.sm, color: colors.text.tertiary, textAlign: 'center' },
+  emojiInput: {
+    fontSize: 48, textAlign: 'center',
+    backgroundColor: colors.background.tertiary,
+    borderRadius: radius.md, borderWidth: 1,
+    borderColor: colors.border.default,
+    paddingVertical: spacing.lg,
+    minHeight: 90,
+    color: colors.text.primary,
+  },
+  emojiActions: { alignItems: 'center' },
+  emojiConfirm: {
+    backgroundColor: colors.accent.primary,
+    borderRadius: radius.md,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing['2xl'],
+  },
+  emojiConfirmText: { ...typography.label.lg, color: colors.text.inverse, fontWeight: '700' },
 });
