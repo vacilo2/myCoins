@@ -20,14 +20,18 @@ export function StepFilePick({ onPicked, onError }: StepFilePickProps) {
       if (!result) { setLoading(false); return; }
 
       if (result.rows.length === 0) {
-        onError('Nenhuma linha válida encontrada no arquivo. Verifique se o CSV tem cabeçalho com colunas de data, descrição e valor.');
+        onError(
+          'Nenhuma linha reconhecida no arquivo.\n\n' +
+          'O CSV precisa ter colunas de data, descrição e valor no cabeçalho.\n\n' +
+          'Colunas aceitas:\n• Data: date, data, dt\n• Descrição: title, description, historico, memo\n• Valor: amount, valor, value'
+        );
         setLoading(false);
         return;
       }
 
       onPicked(result);
     } catch (e: any) {
-      onError('Erro ao ler o arquivo. Verifique se é um CSV válido.');
+      onError('Erro ao ler o arquivo: ' + (e?.message ?? String(e)));
     } finally {
       setLoading(false);
     }
