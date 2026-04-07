@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ScrollView,
   View,
@@ -28,6 +28,13 @@ import { useUIStore } from '@store/ui-store';
 export default function DashboardScreen() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const setSelectedDate = useUIStore((s) => s.setSelectedDate);
+  const onboardingCompleted = usePreferencesStore((s) => s.preferences.onboardingCompleted);
+
+  useEffect(() => {
+    if (!onboardingCompleted) {
+      router.push('/(modals)/onboarding-profile');
+    }
+  }, [onboardingCompleted]);
 
   function handleMonthChange(date: Date) {
     setCurrentDate(date);

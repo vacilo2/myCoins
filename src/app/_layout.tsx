@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Stack, router, useRootNavigationState } from 'expo-router';
+import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -15,23 +15,14 @@ export default function RootLayout() {
   const transactionHydrated = useTransactionStore((s) => s.isHydrated);
   const categoryHydrated = useCategoryStore((s) => s.isHydrated);
   const prefsHydrated = usePreferencesStore((s) => s.isHydrated);
-  const onboardingCompleted = usePreferencesStore((s) => s.preferences.onboardingCompleted);
-  const navigationState = useRootNavigationState();
 
   const isReady = transactionHydrated && categoryHydrated && prefsHydrated;
-  const isNavigatorReady = !!navigationState?.key;
 
   useEffect(() => {
     if (isReady) {
       SplashScreen.hideAsync();
     }
   }, [isReady]);
-
-  useEffect(() => {
-    if (isReady && isNavigatorReady && !onboardingCompleted) {
-      router.push('/(modals)/onboarding-profile');
-    }
-  }, [isReady, isNavigatorReady, onboardingCompleted]);
 
   if (!isReady) return null;
 
