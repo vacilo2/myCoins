@@ -51,12 +51,12 @@ export default function FinancialProfileModal() {
   const [step, setStep] = useState(0);
 
   // Step 0
-  const [goal, setGoal] = useState<FinancialGoal | ''>(preferences.financialGoal);
-  const [profile, setProfile] = useState<SpendingProfile>(preferences.spendingProfile);
+  const [goal, setGoal] = useState<FinancialGoal | ''>(preferences.financialGoal ?? '');
+  const [profile, setProfile] = useState<SpendingProfile>(preferences.spendingProfile ?? 'desconhecido');
 
   // Step 1
-  const [incomeType, setIncomeType] = useState<IncomeType | ''>(preferences.incomeType);
-  const [categories, setCategories] = useState<SpendingCategory[]>(preferences.topSpendingCategories);
+  const [incomeType, setIncomeType] = useState<IncomeType | ''>(preferences.incomeType ?? '');
+  const [categories, setCategories] = useState<SpendingCategory[]>(preferences.topSpendingCategories ?? []);
   const [savingsGoalText, setSavingsGoalText] = useState(
     preferences.savingsGoalPct > 0 ? String(preferences.savingsGoalPct) : ''
   );
