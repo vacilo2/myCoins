@@ -8,6 +8,7 @@ import { colors, typography, spacing, radius } from '@theme/index';
 import { useCategoryStore } from '@store/category-store';
 import { Input } from '@ui/input';
 import { Button } from '@ui/button';
+import { CategoryIcon } from '@ui/category-icon';
 import { isValidCategoryName } from '@utils/validators';
 
 const COLOR_OPTIONS = [
@@ -17,11 +18,22 @@ const COLOR_OPTIONS = [
 ];
 
 const ICON_OPTIONS = [
-  'food', 'car', 'home', 'heart-pulse', 'school', 'gamepad-variant',
-  'shopping', 'cash-multiple', 'laptop', 'trending-up', 'airplane',
-  'music', 'book-open-variant', 'dumbbell', 'coffee', 'phone', 'wifi',
-  'gas-station', 'hospital-building', 'account-group', 'gift',
-  'dots-horizontal', 'plus-circle',
+  // Alimentação
+  '🍔','🍕','🍣','🥗','🍜','🥩','🍱','☕','🧃','🍺','🥐','🍰',
+  // Transporte
+  '🚗','🚌','🏍️','✈️','🚂','🛵','🚕','⛽',
+  // Casa & Contas
+  '🏠','💡','💧','📱','📺','🛒','🔧','🏢',
+  // Saúde
+  '❤️','💊','🏥','🧘','🏋️','🦷','👁️','🩺',
+  // Lazer & Cultura
+  '🎮','🎵','🎬','📚','⚽','🎨','🎭','🎤',
+  // Finanças & Trabalho
+  '💰','💳','📈','💼','🏦','🎁','💸','🪙',
+  // Pessoas & Estilo
+  '👶','🐾','✂️','👗','💄','🧴','🏫','🤝',
+  // Outros
+  '🌱','🌍','⭐','🔔','📦','🗂️','❓','➕',
 ];
 
 export default function EditCategoryModal() {
@@ -59,7 +71,7 @@ export default function EditCategoryModal() {
 
         <View style={styles.preview}>
           <View style={[styles.previewIcon, { backgroundColor: color + '22' }]}>
-            <MaterialCommunityIcons name={icon as any} size={28} color={color} />
+            <CategoryIcon icon={icon} size={28} color={color} />
           </View>
           <Text style={[styles.previewName, { color }]}>{name}</Text>
         </View>
@@ -86,8 +98,8 @@ export default function EditCategoryModal() {
                 style={[styles.iconBtn, icon === i && styles.iconBtnActive]}
                 onPress={() => setIcon(i)}
               >
-                <MaterialCommunityIcons
-                  name={i as any}
+                <CategoryIcon
+                  icon={i}
                   size={22}
                   color={icon === i ? color : colors.text.secondary}
                 />

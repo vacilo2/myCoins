@@ -16,14 +16,26 @@ import { TransactionType } from '@/types';
 import { useCategoryStore } from '@store/category-store';
 import { Input } from '@ui/input';
 import { Button } from '@ui/button';
+import { CategoryIcon } from '@ui/category-icon';
 import { isValidCategoryName } from '@utils/validators';
 
 const ICON_OPTIONS = [
-  'food', 'car', 'home', 'heart-pulse', 'school', 'gamepad-variant',
-  'shopping', 'cash-multiple', 'laptop', 'trending-up', 'airplane',
-  'music', 'book-open-variant', 'dumbbell', 'coffee', 'phone', 'wifi',
-  'gas-station', 'hospital-building', 'account-group', 'gift',
-  'dots-horizontal', 'plus-circle',
+  // Alimentação
+  '🍔','🍕','🍣','🥗','🍜','🥩','🍱','☕','🧃','🍺','🥐','🍰',
+  // Transporte
+  '🚗','🚌','🏍️','✈️','🚂','🛵','🚕','⛽',
+  // Casa & Contas
+  '🏠','💡','💧','📱','📺','🛒','🔧','🏢',
+  // Saúde
+  '❤️','💊','🏥','🧘','🏋️','🦷','👁️','🩺',
+  // Lazer & Cultura
+  '🎮','🎵','🎬','📚','⚽','🎨','🎭','🎤',
+  // Finanças & Trabalho
+  '💰','💳','📈','💼','🏦','🎁','💸','🪙',
+  // Pessoas & Estilo
+  '👶','🐾','✂️','👗','💄','🧴','🏫','🤝',
+  // Outros
+  '🌱','🌍','⭐','🔔','📦','🗂️','❓','➕',
 ];
 
 const COLOR_OPTIONS = [
@@ -86,7 +98,7 @@ export default function NewCategoryModal() {
         {/* Preview */}
         <View style={styles.preview}>
           <View style={[styles.previewIcon, { backgroundColor: color + '22' }]}>
-            <MaterialCommunityIcons name={icon as any} size={28} color={color} />
+            <CategoryIcon icon={icon} size={28} color={color} />
           </View>
           <Text style={[styles.previewName, { color }]}>{name || 'Nova categoria'}</Text>
         </View>
@@ -117,8 +129,8 @@ export default function NewCategoryModal() {
                 onPress={() => setIcon(i)}
                 activeOpacity={0.8}
               >
-                <MaterialCommunityIcons
-                  name={i as any}
+                <CategoryIcon
+                  icon={i}
                   size={22}
                   color={icon === i ? color : colors.text.secondary}
                 />

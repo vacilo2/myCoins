@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors, typography, spacing, radius } from '@theme/index';
 import { Category } from '@/types';
+import { CategoryIcon } from '@ui/category-icon';
 
 interface CategoryCardProps {
   category: Category;
@@ -15,7 +16,7 @@ export function CategoryCard({ category, onPress, onDelete, transactionCount }: 
   return (
     <TouchableOpacity style={styles.container} onPress={onPress} activeOpacity={0.8}>
       <View style={[styles.iconWrapper, { backgroundColor: category.color + '22' }]}>
-        <MaterialCommunityIcons name={category.icon as any} size={22} color={category.color} />
+        <CategoryIcon icon={category.icon} size={22} color={category.color} />
       </View>
 
       <View style={styles.info}>

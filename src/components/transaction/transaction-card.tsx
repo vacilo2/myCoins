@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors, typography, spacing, radius } from '@theme/index';
 import { Transaction, Category } from '@/types';
+import { CategoryIcon } from '@ui/category-icon';
 import { formatCurrency } from '@utils/currency';
 import { formatDateShort } from '@utils/date';
 
@@ -34,8 +35,8 @@ export function TransactionCard({
           { backgroundColor: (category?.color ?? colors.text.tertiary) + '22' },
         ]}
       >
-        <MaterialCommunityIcons
-          name={(category?.icon ?? 'cash') as any}
+        <CategoryIcon
+          icon={category?.icon ?? 'cash'}
           size={20}
           color={category?.color ?? colors.text.tertiary}
         />

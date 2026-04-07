@@ -5,3 +5,4 @@ export { Input } from './input';
 export { EmptyState } from './empty-state';
 export { Divider } from './divider';
 export { DatePickerField } from './date-picker-field';
+export { CategoryIcon } from './category-icon';
