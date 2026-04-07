@@ -14,13 +14,13 @@ function buildGreeting(name: string, status: HealthStatus): { main: string; sub:
 
   switch (status) {
     case 'good':
-      return { main: `${prefix}! 👍`, sub: 'Tudo sob controle este mês.' };
+      return { main: prefix, sub: 'Tudo sob controle este mês.' };
     case 'warning':
-      return { main: `${prefix}!`, sub: 'Fique de olho nos gastos este mês.' };
+      return { main: prefix, sub: 'Fique de olho nos gastos este mês.' };
     case 'danger':
-      return { main: `${prefix}!`, sub: 'Orçamento estourado — hora de revisar.' };
+      return { main: prefix, sub: 'Orçamento estourado — hora de revisar.' };
     default:
-      return { main: `${prefix} 👋`, sub: 'Seu resumo financeiro' };
+      return { main: prefix, sub: 'Seu resumo financeiro' };
   }
 }
 
@@ -43,6 +43,6 @@ export function SmartGreeting({ name, healthStatus }: SmartGreetingProps) {
 }
 
 const styles = StyleSheet.create({
-  main: { ...typography.heading.xl, color: colors.text.primary },
-  sub: { ...typography.body.md, marginTop: 2 },
+  main: { ...typography.heading.lg, color: colors.text.primary },
+  sub: { ...typography.body.sm, color: colors.text.secondary, marginTop: 2 },
 });

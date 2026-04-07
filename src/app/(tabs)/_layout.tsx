@@ -6,7 +6,7 @@ import * as Haptics from 'expo-haptics';
 import { colors, spacing, radius } from '@theme/index';
 
 function TabBarIcon({ name, color }: { name: string; color: string }) {
-  return <MaterialCommunityIcons name={name as any} size={24} color={color} />;
+  return <MaterialCommunityIcons name={name as any} size={22} color={color} />;
 }
 
 function FABButton() {
@@ -16,8 +16,8 @@ function FABButton() {
   }
 
   return (
-    <TouchableOpacity style={styles.fab} onPress={handlePress} activeOpacity={0.85}>
-      <MaterialCommunityIcons name="plus" size={28} color={colors.text.inverse} />
+    <TouchableOpacity style={styles.fab} onPress={handlePress} activeOpacity={0.8}>
+      <MaterialCommunityIcons name="plus" size={24} color={colors.text.inverse} />
     </TouchableOpacity>
   );
 }
@@ -28,7 +28,7 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: styles.tabBar,
-        tabBarActiveTintColor: colors.accent.primary,
+        tabBarActiveTintColor: colors.text.primary,
         tabBarInactiveTintColor: colors.text.tertiary,
         tabBarShowLabel: true,
         tabBarLabelStyle: styles.tabLabel,
@@ -62,42 +62,34 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabBarIcon name="chart-bar" color={color} />,
         }}
       />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: 'Config',
-          tabBarIcon: ({ color }) => <TabBarIcon name="cog-outline" color={color} />,
-        }}
-      />
+      <Tabs.Screen name="categories" options={{ href: null }} />
+      <Tabs.Screen name="settings" options={{ href: null }} />
     </Tabs>
   );
 }
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: colors.background.secondary,
-    borderTopColor: colors.border.default,
+    backgroundColor: colors.background.primary,
+    borderTopColor: colors.border.subtle,
     borderTopWidth: 1,
-    height: 85,
+    height: 80,
     paddingBottom: 20,
     paddingTop: 8,
+    elevation: 0,
+    shadowOpacity: 0,
   },
   tabLabel: {
     fontSize: 10,
     fontWeight: '500',
   },
   fab: {
-    width: 56,
-    height: 56,
+    width: 48,
+    height: 48,
     borderRadius: radius.full,
     backgroundColor: colors.accent.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
-    shadowColor: colors.accent.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 8,
+    marginBottom: 16,
   },
 });

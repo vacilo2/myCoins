@@ -5,6 +5,7 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
+  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -21,14 +22,17 @@ import { SmartGreeting } from '@/components/dashboard/smart-greeting';
 import { HealthIndicator } from '@/components/dashboard/health-indicator';
 import { InsightCards } from '@/components/dashboard/insight-cards';
 import { ProfileProgressCard } from '@/components/dashboard/profile-progress-card';
+import { AvatarButton } from '@/components/ui/avatar-button';
 import { useCategoryStore } from '@store/category-store';
 import { getPreviousMonth, getNextMonth, formatMonthYear } from '@utils/date';
 import { useUIStore } from '@store/ui-store';
+import { useSwipeNavigation } from '@hooks/use-swipe-navigation';
 
 export default function DashboardScreen() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const setSelectedDate = useUIStore((s) => s.setSelectedDate);
   const onboardingCompleted = usePreferencesStore((s) => s.preferences.onboardingCompleted);
+  const { panHandlers, animatedStyle } = useSwipeNavigation('index');
 
   useEffect(() => {
     if (!onboardingCompleted) {
@@ -57,38 +61,40 @@ export default function DashboardScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Header com saudação inteligente */}
-        <View style={styles.header}>
-          <SmartGreeting name={preferences.name} healthStatus={insights.healthStatus} />
-        </View>
+      <Animated.View style={animatedStyle} {...panHandlers}>
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Header */}
+          <View style={styles.header}>
+            <View style={{ flex: 1 }}>
+              <SmartGreeting name={preferences.name} healthStatus={insights.healthStatus} />
+            </View>
+            <AvatarButton />
+          </View>
 
-        {/* Card de progresso do perfil */}
-        <ProfileProgressCard />
+          <ProfileProgressCard />
 
-        {/* Navegação de mês */}
-        <View style={styles.monthNav}>
-          <TouchableOpacity
-            onPress={() => handleMonthChange(getPreviousMonth(currentDate))}
-            hitSlop={12}
-          >
-            <MaterialCommunityIcons name="chevron-left" size={24} color={colors.text.secondary} />
-          </TouchableOpacity>
-          <Text style={styles.monthText}>{formatMonthYear(currentDate)}</Text>
-          <TouchableOpacity
-            onPress={() => handleMonthChange(getNextMonth(currentDate))}
-            hitSlop={12}
-          >
-            <MaterialCommunityIcons name="chevron-right" size={24} color={colors.text.secondary} />
-          </TouchableOpacity>
-        </View>
+          {/* Mês */}
+          <View style={styles.monthNav}>
+            <TouchableOpacity
+              onPress={() => handleMonthChange(getPreviousMonth(currentDate))}
+              hitSlop={12}
+            >
+              <MaterialCommunityIcons name="chevron-left" size={22} color={colors.text.tertiary} />
+            </TouchableOpacity>
+            <Text style={styles.monthText}>{formatMonthYear(currentDate)}</Text>
+            <TouchableOpacity
+              onPress={() => handleMonthChange(getNextMonth(currentDate))}
+              hitSlop={12}
+            >
+              <MaterialCommunityIcons name="chevron-right" size={22} color={colors.text.tertiary} />
+            </TouchableOpacity>
+          </View>
 
-        {/* Card de saldo + indicador de saúde */}
-        <View style={styles.balanceBlock}>
+          {/* Saldo */}
           <BalanceCard
             balance={insights.balance}
             totalIncome={insights.totalIncome}
@@ -96,55 +102,56 @@ export default function DashboardScreen() {
             currentDate={currentDate}
             currency={preferences.currency}
           />
+
           <View style={styles.healthRow}>
             <HealthIndicator status={insights.healthStatus} />
           </View>
-        </View>
 
-        {/* Cards de insight (orçamento, poupança, projeção) */}
-        {insights.monthlyIncome > 0 && (
-          <View style={styles.insightSection}>
-            <InsightCards insights={insights} currency={preferences.currency} />
-          </View>
-        )}
-
-        {/* Top Categorias */}
-        {topCategories.length > 0 && (
-          <TopCategories categories={topCategories} currency={preferences.currency} />
-        )}
-
-        {/* Lançamentos recentes */}
-        {recent.length > 0 && (
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Recentes</Text>
-              <TouchableOpacity onPress={() => router.push('/(tabs)/transactions')}>
-                <Text style={styles.seeAll}>Ver todos</Text>
-              </TouchableOpacity>
+          {/* Insights */}
+          {insights.monthlyIncome > 0 && (
+            <View style={styles.insightSection}>
+              <InsightCards insights={insights} currency={preferences.currency} />
             </View>
-            <View style={styles.list}>
-              {recent.map((t) => (
-                <TransactionCard
-                  key={t.id}
-                  transaction={t}
-                  category={getCategoryById(t.categoryId)}
-                  currency={preferences.currency}
-                  onPress={() =>
-                    router.push({ pathname: '/(modals)/edit-transaction', params: { id: t.id } })
-                  }
-                />
-              ))}
-            </View>
-          </View>
-        )}
+          )}
 
-        {recentTransactions.length === 0 && (
-          <View style={styles.emptyHint}>
-            <Text style={styles.emptyText}>Nenhum lançamento neste mês.</Text>
-            <Text style={styles.emptyText}>Toque no + para adicionar.</Text>
-          </View>
-        )}
-      </ScrollView>
+          {/* Top Categorias */}
+          {topCategories.length > 0 && (
+            <TopCategories categories={topCategories} currency={preferences.currency} />
+          )}
+
+          {/* Recentes */}
+          {recent.length > 0 && (
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Recentes</Text>
+                <TouchableOpacity onPress={() => router.push('/(tabs)/transactions')}>
+                  <Text style={styles.seeAll}>Ver todos</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.list}>
+                {recent.map((t) => (
+                  <TransactionCard
+                    key={t.id}
+                    transaction={t}
+                    category={getCategoryById(t.categoryId)}
+                    currency={preferences.currency}
+                    onPress={() =>
+                      router.push({ pathname: '/(modals)/edit-transaction', params: { id: t.id } })
+                    }
+                  />
+                ))}
+              </View>
+            </View>
+          )}
+
+          {recentTransactions.length === 0 && (
+            <View style={styles.emptyHint}>
+              <Text style={styles.emptyText}>Nenhum lançamento neste mês.</Text>
+              <Text style={styles.emptyText}>Toque no + para adicionar.</Text>
+            </View>
+          )}
+        </ScrollView>
+      </Animated.View>
     </SafeAreaView>
   );
 }
@@ -157,11 +164,13 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   content: {
     padding: spacing['2xl'],
-    gap: spacing['2xl'],
+    gap: spacing.xl,
     paddingBottom: 100,
   },
   header: {
-    gap: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   monthNav: {
     flexDirection: 'row',
@@ -171,17 +180,13 @@ const styles = StyleSheet.create({
   },
   monthText: {
     ...typography.label.lg,
-    color: colors.text.primary,
+    color: colors.text.secondary,
     textTransform: 'capitalize',
-    minWidth: 140,
+    minWidth: 130,
     textAlign: 'center',
-  },
-  balanceBlock: {
-    gap: spacing.sm,
   },
   healthRow: {
     flexDirection: 'row',
-    paddingHorizontal: spacing.xs,
   },
   insightSection: {
     marginHorizontal: -spacing['2xl'],
@@ -195,12 +200,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   sectionTitle: {
-    ...typography.heading.sm,
+    ...typography.label.lg,
     color: colors.text.primary,
   },
   seeAll: {
-    ...typography.label.md,
-    color: colors.accent.primary,
+    ...typography.label.sm,
+    color: colors.text.tertiary,
   },
   list: {
     gap: spacing.sm,

@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { colors, typography, spacing, radius } from '@theme/index';
 import { useUIStore } from '@store/ui-store';
@@ -16,37 +15,27 @@ export function ProfileProgressCard() {
 
   return (
     <View style={styles.card}>
-      <View style={styles.row}>
-        <View style={styles.iconWrapper}>
-          <MaterialCommunityIcons name="chart-box-outline" size={22} color={colors.accent.primary} />
-        </View>
-        <View style={styles.textBlock}>
-          <Text style={styles.title}>Melhore suas análises</Text>
-          <Text style={styles.sub}>Perfil {profileCompletionLevel}% completo</Text>
+      <View style={styles.topRow}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.title}>Complete seu perfil</Text>
+          <Text style={styles.sub}>{profileCompletionLevel}% concluído</Text>
         </View>
         <TouchableOpacity onPress={snoozeProfileCard} hitSlop={8}>
-          <MaterialCommunityIcons name="close" size={18} color={colors.text.tertiary} />
+          <Text style={styles.dismiss}>Dispensar</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Barra de progresso */}
       <View style={styles.barBg}>
         <View style={[styles.barFill, { width: `${profileCompletionLevel}%` as any }]} />
       </View>
 
-      {/* Ações */}
-      <View style={styles.actions}>
-        <TouchableOpacity
-          style={styles.btnPrimary}
-          onPress={() => router.push('/(modals)/financial-profile')}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.btnPrimaryText}>Continuar</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={snoozeProfileCard} hitSlop={8}>
-          <Text style={styles.btnSecondaryText}>Agora não</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity
+        style={styles.btn}
+        onPress={() => router.push('/(modals)/financial-profile')}
+        activeOpacity={0.7}
+      >
+        <Text style={styles.btnText}>Continuar</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -54,31 +43,31 @@ export function ProfileProgressCard() {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.background.secondary,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
-    borderWidth: 1,
-    borderColor: colors.accent.primary + '44',
-    gap: spacing.md,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-  },
-  iconWrapper: {
-    width: 40,
-    height: 40,
     borderRadius: radius.md,
-    backgroundColor: colors.accent.muted,
-    alignItems: 'center',
-    justifyContent: 'center',
+    padding: spacing.lg,
+    gap: spacing.md,
   },
-  textBlock: { flex: 1, gap: 2 },
-  title: { ...typography.label.lg, color: colors.text.primary, fontWeight: '700' },
-  sub: { ...typography.label.sm, color: colors.text.secondary },
+  topRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.md,
+  },
+  title: {
+    ...typography.label.lg,
+    color: colors.text.primary,
+  },
+  sub: {
+    ...typography.label.sm,
+    color: colors.text.tertiary,
+    marginTop: 2,
+  },
+  dismiss: {
+    ...typography.label.sm,
+    color: colors.text.tertiary,
+  },
   barBg: {
-    height: 6,
-    backgroundColor: colors.border.subtle,
+    height: 3,
+    backgroundColor: colors.surface.subtle,
     borderRadius: radius.full,
     overflow: 'hidden',
   },
@@ -87,24 +76,15 @@ const styles = StyleSheet.create({
     backgroundColor: colors.accent.primary,
     borderRadius: radius.full,
   },
-  actions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.lg,
-  },
-  btnPrimary: {
-    backgroundColor: colors.accent.primary,
-    borderRadius: radius.md,
+  btn: {
+    alignSelf: 'flex-start',
+    backgroundColor: colors.background.tertiary,
+    borderRadius: radius.sm,
     paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: spacing.lg,
   },
-  btnPrimaryText: {
-    ...typography.label.lg,
-    color: colors.text.inverse,
-    fontWeight: '700',
-  },
-  btnSecondaryText: {
+  btnText: {
     ...typography.label.md,
-    color: colors.text.tertiary,
+    color: colors.text.primary,
   },
 });

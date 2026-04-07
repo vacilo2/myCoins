@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors, typography, spacing, radius } from '@theme/index';
@@ -10,11 +10,13 @@ import { ChartBar } from '@/components/reports/chart-bar';
 import { ScreenHeader } from '@/components/layout/screen-header';
 import { formatCurrency } from '@utils/currency';
 import { getPreviousMonth, getNextMonth, formatMonthYear } from '@utils/date';
+import { useSwipeNavigation } from '@hooks/use-swipe-navigation';
 
 export default function ReportsScreen() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth() + 1;
+  const { panHandlers, animatedStyle } = useSwipeNavigation('reports');
 
   const currency = usePreferencesStore((s) => s.preferences.currency);
   const summary = useSummary(year, month);
@@ -28,97 +30,99 @@ export default function ReportsScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <ScreenHeader title="Relatórios" />
+      <Animated.View style={animatedStyle} {...panHandlers}>
+        <ScreenHeader title="Relatórios" />
 
-      <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Navegação de mês */}
-        <View style={styles.monthNav}>
-          <TouchableOpacity onPress={() => setCurrentDate(getPreviousMonth(currentDate))} hitSlop={12}>
-            <MaterialCommunityIcons name="chevron-left" size={24} color={colors.text.secondary} />
-          </TouchableOpacity>
-          <Text style={styles.monthText}>{formatMonthYear(currentDate)}</Text>
-          <TouchableOpacity onPress={() => setCurrentDate(getNextMonth(currentDate))} hitSlop={12}>
-            <MaterialCommunityIcons name="chevron-right" size={24} color={colors.text.secondary} />
-          </TouchableOpacity>
-        </View>
-
-        {/* Métricas do mês */}
-        <View style={styles.metricsRow}>
-          <View style={[styles.metric, { backgroundColor: colors.semantic.incomeMuted }]}>
-            <Text style={styles.metricLabel}>Receitas</Text>
-            <Text style={[styles.metricValue, { color: colors.semantic.income }]}>
-              {formatCurrency(summary.totalIncome, currency)}
-            </Text>
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Navegação de mês */}
+          <View style={styles.monthNav}>
+            <TouchableOpacity onPress={() => setCurrentDate(getPreviousMonth(currentDate))} hitSlop={12}>
+              <MaterialCommunityIcons name="chevron-left" size={24} color={colors.text.secondary} />
+            </TouchableOpacity>
+            <Text style={styles.monthText}>{formatMonthYear(currentDate)}</Text>
+            <TouchableOpacity onPress={() => setCurrentDate(getNextMonth(currentDate))} hitSlop={12}>
+              <MaterialCommunityIcons name="chevron-right" size={24} color={colors.text.secondary} />
+            </TouchableOpacity>
           </View>
-          <View style={[styles.metric, { backgroundColor: colors.semantic.expenseMuted }]}>
-            <Text style={styles.metricLabel}>Despesas</Text>
-            <Text style={[styles.metricValue, { color: colors.semantic.expense }]}>
-              {formatCurrency(summary.totalExpense, currency)}
-            </Text>
-          </View>
-        </View>
 
-        {/* Taxa de economia */}
-        <View style={styles.savingsCard}>
-          <View>
-            <Text style={styles.savingsLabel}>Taxa de economia</Text>
-            <Text style={styles.savingsDesc}>Quanto você guardou do que recebeu</Text>
-          </View>
-          <Text
-            style={[
-              styles.savingsValue,
-              { color: savingsRate >= 0 ? colors.semantic.income : colors.semantic.expense },
-            ]}
-          >
-            {savingsRate.toFixed(1)}%
-          </Text>
-        </View>
-
-        {/* Gráfico de barras */}
-        <ChartBar data={chartData} currency={currency} />
-
-        {/* Despesas por categoria */}
-        {categoryReport.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Despesas por categoria</Text>
-            <View style={styles.catList}>
-              {categoryReport.map((item) => (
-                <View key={item.category.id} style={styles.catRow}>
-                  <View style={[styles.catIcon, { backgroundColor: item.category.color + '22' }]}>
-                    <MaterialCommunityIcons
-                      name={item.category.icon as any}
-                      size={16}
-                      color={item.category.color}
-                    />
-                  </View>
-                  <View style={styles.catInfo}>
-                    <Text style={styles.catName}>{item.category.name}</Text>
-                    <View style={styles.barTrack}>
-                      <View
-                        style={[
-                          styles.barFill,
-                          {
-                            width: `${Math.min(item.percentage, 100)}%` as any,
-                            backgroundColor: item.category.color,
-                          },
-                        ]}
-                      />
-                    </View>
-                  </View>
-                  <View style={styles.catRight}>
-                    <Text style={styles.catAmount}>{formatCurrency(item.total, currency)}</Text>
-                    <Text style={styles.catPct}>{item.percentage.toFixed(0)}%</Text>
-                  </View>
-                </View>
-              ))}
+          {/* Métricas do mês */}
+          <View style={styles.metricsRow}>
+            <View style={[styles.metric, { backgroundColor: colors.semantic.incomeMuted }]}>
+              <Text style={styles.metricLabel}>Receitas</Text>
+              <Text style={[styles.metricValue, { color: colors.semantic.income }]}>
+                {formatCurrency(summary.totalIncome, currency)}
+              </Text>
+            </View>
+            <View style={[styles.metric, { backgroundColor: colors.semantic.expenseMuted }]}>
+              <Text style={styles.metricLabel}>Despesas</Text>
+              <Text style={[styles.metricValue, { color: colors.semantic.expense }]}>
+                {formatCurrency(summary.totalExpense, currency)}
+              </Text>
             </View>
           </View>
-        )}
-      </ScrollView>
+
+          {/* Taxa de economia */}
+          <View style={styles.savingsCard}>
+            <View>
+              <Text style={styles.savingsLabel}>Taxa de economia</Text>
+              <Text style={styles.savingsDesc}>Quanto você guardou do que recebeu</Text>
+            </View>
+            <Text
+              style={[
+                styles.savingsValue,
+                { color: savingsRate >= 0 ? colors.semantic.income : colors.semantic.expense },
+              ]}
+            >
+              {savingsRate.toFixed(1)}%
+            </Text>
+          </View>
+
+          {/* Gráfico de barras */}
+          <ChartBar data={chartData} currency={currency} />
+
+          {/* Despesas por categoria */}
+          {categoryReport.length > 0 && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Despesas por categoria</Text>
+              <View style={styles.catList}>
+                {categoryReport.map((item) => (
+                  <View key={item.category.id} style={styles.catRow}>
+                    <View style={[styles.catIcon, { backgroundColor: item.category.color + '22' }]}>
+                      <MaterialCommunityIcons
+                        name={item.category.icon as any}
+                        size={16}
+                        color={item.category.color}
+                      />
+                    </View>
+                    <View style={styles.catInfo}>
+                      <Text style={styles.catName}>{item.category.name}</Text>
+                      <View style={styles.barTrack}>
+                        <View
+                          style={[
+                            styles.barFill,
+                            {
+                              width: `${Math.min(item.percentage, 100)}%` as any,
+                              backgroundColor: item.category.color,
+                            },
+                          ]}
+                        />
+                      </View>
+                    </View>
+                    <View style={styles.catRight}>
+                      <Text style={styles.catAmount}>{formatCurrency(item.total, currency)}</Text>
+                      <Text style={styles.catPct}>{item.percentage.toFixed(0)}%</Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+        </ScrollView>
+      </Animated.View>
     </SafeAreaView>
   );
 }
@@ -140,24 +144,15 @@ const styles = StyleSheet.create({
     minWidth: 140,
     textAlign: 'center',
   },
-  metricsRow: {
-    flexDirection: 'row',
-    gap: spacing.md,
-  },
+  metricsRow: { flexDirection: 'row', gap: spacing.md },
   metric: {
     flex: 1,
     borderRadius: radius.lg,
     padding: spacing.lg,
     gap: spacing.xs,
   },
-  metricLabel: {
-    ...typography.label.sm,
-    color: colors.text.secondary,
-  },
-  metricValue: {
-    ...typography.mono.md,
-    fontWeight: '700',
-  },
+  metricLabel: { ...typography.label.sm, color: colors.text.secondary },
+  metricValue: { ...typography.mono.md, fontWeight: '700' },
   savingsCard: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -168,24 +163,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border.default,
   },
-  savingsLabel: {
-    ...typography.label.lg,
-    color: colors.text.primary,
-  },
-  savingsDesc: {
-    ...typography.body.sm,
-    color: colors.text.tertiary,
-    marginTop: 2,
-  },
-  savingsValue: {
-    ...typography.mono.lg,
-    fontWeight: '700',
-  },
+  savingsLabel: { ...typography.label.lg, color: colors.text.primary },
+  savingsDesc: { ...typography.body.sm, color: colors.text.tertiary, marginTop: 2 },
+  savingsValue: { ...typography.mono.lg, fontWeight: '700' },
   section: { gap: spacing.md },
-  sectionTitle: {
-    ...typography.heading.sm,
-    color: colors.text.primary,
-  },
+  sectionTitle: { ...typography.heading.sm, color: colors.text.primary },
   catList: { gap: spacing.sm },
   catRow: {
     flexDirection: 'row',

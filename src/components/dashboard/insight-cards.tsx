@@ -10,7 +10,14 @@ interface InsightCardsProps {
 }
 
 export function InsightCards({ insights, currency }: InsightCardsProps) {
-  const { budgetUsedPct, actualSavingsPct, savingsGoalPct, projectedMonthlyExpense, monthlyIncome, incomeType } = insights;
+  const {
+    budgetUsedPct,
+    actualSavingsPct,
+    savingsGoalPct,
+    projectedMonthlyExpense,
+    monthlyIncome,
+    incomeType,
+  } = insights;
 
   const isVariableIncome = incomeType === 'variavel' || incomeType === 'autonomo';
 
@@ -39,7 +46,6 @@ export function InsightCards({ insights, currency }: InsightCardsProps) {
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.row}
     >
-      {/* Card 1: Orçamento */}
       {monthlyIncome > 0 && !isVariableIncome && (
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Orçamento</Text>
@@ -48,15 +54,19 @@ export function InsightCards({ insights, currency }: InsightCardsProps) {
           </Text>
           <Text style={styles.cardSub}>da renda utilizado</Text>
           <View style={styles.barBg}>
-            <View style={[styles.barFill, {
-              width: `${Math.min(budgetUsedPct, 100)}%` as any,
-              backgroundColor: budgetColor,
-            }]} />
+            <View
+              style={[
+                styles.barFill,
+                {
+                  width: `${Math.min(budgetUsedPct, 100)}%` as any,
+                  backgroundColor: budgetColor,
+                },
+              ]}
+            />
           </View>
         </View>
       )}
 
-      {/* Card 2: Poupança */}
       {monthlyIncome > 0 && (
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Poupança</Text>
@@ -71,25 +81,23 @@ export function InsightCards({ insights, currency }: InsightCardsProps) {
         </View>
       )}
 
-      {/* Card 3: Projeção */}
       {insights.daysPassed > 1 && insights.daysRemaining > 0 && (
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Projeção</Text>
           <Text style={[styles.cardValue, { color: projColor, fontSize: 16 }]}>
             {formatCurrency(projectedMonthlyExpense, currency, { compact: true })}
           </Text>
-          <Text style={styles.cardSub}>gasto estimado no mês</Text>
+          <Text style={styles.cardSub}>gasto estimado</Text>
         </View>
       )}
 
-      {/* Card 4: Reserva */}
       {insights.savedAmount > 0 && (
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Reserva</Text>
           <Text style={[styles.cardValue, { color: colors.accent.primary, fontSize: 16 }]}>
             {formatCurrency(insights.savedAmount, currency, { compact: true })}
           </Text>
-          <Text style={styles.cardSub}>já guardados</Text>
+          <Text style={styles.cardSub}>guardados</Text>
         </View>
       )}
     </ScrollView>
@@ -99,16 +107,13 @@ export function InsightCards({ insights, currency }: InsightCardsProps) {
 const styles = StyleSheet.create({
   row: {
     paddingHorizontal: spacing['2xl'],
-    gap: spacing.md,
-    paddingBottom: spacing.xs,
+    gap: spacing.sm,
   },
   card: {
     backgroundColor: colors.background.secondary,
-    borderRadius: radius.lg,
+    borderRadius: radius.md,
     padding: spacing.lg,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    minWidth: 130,
+    minWidth: 120,
     gap: spacing.xs,
   },
   cardTitle: {
@@ -126,8 +131,8 @@ const styles = StyleSheet.create({
     color: colors.text.tertiary,
   },
   barBg: {
-    height: 4,
-    backgroundColor: colors.border.subtle,
+    height: 3,
+    backgroundColor: colors.surface.subtle,
     borderRadius: radius.full,
     marginTop: spacing.xs,
     overflow: 'hidden',

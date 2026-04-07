@@ -19,10 +19,10 @@ export function TopCategories({ categories, currency = 'BRL' }: TopCategoriesPro
       <View style={styles.list}>
         {categories.map((item) => (
           <View key={item.category.id} style={styles.item}>
-            <View style={[styles.iconWrapper, { backgroundColor: item.category.color + '22' }]}>
+            <View style={[styles.iconWrapper, { backgroundColor: item.category.color + '18' }]}>
               <MaterialCommunityIcons
                 name={item.category.icon as any}
-                size={18}
+                size={16}
                 color={item.category.color}
               />
             </View>
@@ -56,45 +56,45 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   title: {
-    ...typography.heading.sm,
+    ...typography.label.lg,
     color: colors.text.primary,
   },
   list: {
-    gap: spacing.sm,
+    gap: 1,
+    backgroundColor: colors.border.subtle,
+    borderRadius: radius.md,
+    overflow: 'hidden',
   },
   item: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.background.secondary,
-    borderRadius: radius.md,
     padding: spacing.md,
     gap: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
   },
   iconWrapper: {
-    width: 36,
-    height: 36,
+    width: 32,
+    height: 32,
     borderRadius: radius.sm,
     alignItems: 'center',
     justifyContent: 'center',
   },
   info: {
     flex: 1,
-    gap: 6,
+    gap: 5,
   },
   name: {
-    ...typography.body.md,
+    ...typography.body.sm,
     color: colors.text.primary,
   },
   barWrapper: {
-    height: 3,
+    height: 2,
     backgroundColor: colors.surface.subtle,
     borderRadius: radius.full,
     overflow: 'hidden',
   },
   bar: {
-    height: 3,
+    height: 2,
     borderRadius: radius.full,
   },
   right: {
@@ -107,6 +107,6 @@ const styles = StyleSheet.create({
   percentage: {
     ...typography.label.sm,
     color: colors.text.tertiary,
-    marginTop: 2,
+    marginTop: 1,
   },
 });

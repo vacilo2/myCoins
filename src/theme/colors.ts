@@ -1,46 +1,46 @@
 export const colors = {
-  // Backgrounds
+  // Backgrounds — warm dark grays, Notion-like
   background: {
-    primary: '#0A0A0F',
-    secondary: '#111118',
-    tertiary: '#1A1A25',
+    primary: '#111111',
+    secondary: '#191919',
+    tertiary: '#212121',
   },
 
   // Surfaces
   surface: {
-    subtle: '#222232',
-    elevated: '#1E1E2E',
+    subtle: '#262626',
+    elevated: '#1e1e1e',
   },
 
   // Accent
   accent: {
     primary: '#C6F135',
-    muted: 'rgba(198, 241, 53, 0.12)',
+    muted: 'rgba(198, 241, 53, 0.08)',
     hover: '#B5DF20',
   },
 
   // Semantic
   semantic: {
     income: '#4ADE80',
-    incomeMuted: 'rgba(74, 222, 128, 0.12)',
+    incomeMuted: 'rgba(74, 222, 128, 0.08)',
     expense: '#F87171',
-    expenseMuted: 'rgba(248, 113, 113, 0.12)',
+    expenseMuted: 'rgba(248, 113, 113, 0.08)',
     warning: '#FBBF24',
-    warningMuted: 'rgba(251, 191, 36, 0.12)',
+    warningMuted: 'rgba(251, 191, 36, 0.08)',
   },
 
-  // Text
+  // Text — rgba for Notion-like softness
   text: {
-    primary: '#F5F5F7',
-    secondary: '#8E8EA0',
-    tertiary: '#52526A',
-    inverse: '#0A0A0F',
+    primary: 'rgba(255, 255, 255, 0.88)',
+    secondary: 'rgba(255, 255, 255, 0.45)',
+    tertiary: 'rgba(255, 255, 255, 0.25)',
+    inverse: '#111111',
   },
 
-  // Borders
+  // Borders — very subtle, Notion-style
   border: {
-    default: '#2A2A3E',
-    subtle: '#1E1E2E',
+    default: 'rgba(255, 255, 255, 0.08)',
+    subtle: 'rgba(255, 255, 255, 0.05)',
     focused: '#C6F135',
   },
 

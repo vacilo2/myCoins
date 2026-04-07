@@ -20,7 +20,7 @@ export function ScreenHeader({ title, subtitle, showBack, rightAction }: ScreenH
       <View style={styles.left}>
         {showBack && (
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton} hitSlop={8}>
-            <MaterialCommunityIcons name="arrow-left" size={24} color={colors.text.primary} />
+            <MaterialCommunityIcons name="arrow-left" size={20} color={colors.text.secondary} />
           </TouchableOpacity>
         )}
         <View>
@@ -32,8 +32,8 @@ export function ScreenHeader({ title, subtitle, showBack, rightAction }: ScreenH
         <TouchableOpacity onPress={rightAction.onPress} hitSlop={8}>
           <MaterialCommunityIcons
             name={rightAction.icon as any}
-            size={24}
-            color={colors.text.secondary}
+            size={20}
+            color={colors.text.tertiary}
           />
         </TouchableOpacity>
       )}
@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: spacing['2xl'],
-    paddingVertical: spacing.lg,
+    paddingVertical: spacing.md,
   },
   left: {
     flexDirection: 'row',
@@ -58,12 +58,12 @@ const styles = StyleSheet.create({
     marginRight: spacing.xs,
   },
   title: {
-    ...typography.heading.xl,
+    ...typography.heading.md,
     color: colors.text.primary,
   },
   subtitle: {
     ...typography.body.sm,
-    color: colors.text.secondary,
-    marginTop: 2,
+    color: colors.text.tertiary,
+    marginTop: 1,
   },
 });

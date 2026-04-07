@@ -14,27 +14,27 @@ interface CategoryCardProps {
 
 export function CategoryCard({ category, onPress, onDelete, transactionCount }: CategoryCardProps) {
   return (
-    <TouchableOpacity style={styles.container} onPress={onPress} activeOpacity={0.8}>
-      <View style={[styles.iconWrapper, { backgroundColor: category.color + '22' }]}>
-        <CategoryIcon icon={category.icon} size={22} color={category.color} />
+    <TouchableOpacity style={styles.container} onPress={onPress} activeOpacity={0.6}>
+      <View style={[styles.iconWrapper, { backgroundColor: category.color + '15' }]}>
+        <CategoryIcon icon={category.icon} size={18} color={category.color} />
       </View>
 
       <View style={styles.info}>
         <Text style={styles.name}>{category.name}</Text>
         <Text style={styles.type}>
           {category.type === 'income' ? 'Receita' : category.type === 'expense' ? 'Despesa' : 'Ambos'}
-          {transactionCount !== undefined && ` · ${transactionCount} lançamentos`}
+          {transactionCount !== undefined && ` · ${transactionCount}`}
         </Text>
       </View>
 
       {!category.isDefault && onDelete && (
         <TouchableOpacity onPress={onDelete} hitSlop={8}>
-          <MaterialCommunityIcons name="trash-can-outline" size={18} color={colors.text.tertiary} />
+          <MaterialCommunityIcons name="trash-can-outline" size={16} color={colors.text.tertiary} />
         </TouchableOpacity>
       )}
 
       {onPress && (
-        <MaterialCommunityIcons name="chevron-right" size={20} color={colors.text.tertiary} />
+        <MaterialCommunityIcons name="chevron-right" size={16} color={colors.text.tertiary} />
       )}
     </TouchableOpacity>
   );
@@ -44,17 +44,14 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.background.secondary,
-    borderRadius: radius.md,
-    padding: spacing.md,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.sm,
     gap: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
   },
   iconWrapper: {
-    width: 42,
-    height: 42,
-    borderRadius: radius.md,
+    width: 34,
+    height: 34,
+    borderRadius: radius.sm,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -65,7 +62,6 @@ const styles = StyleSheet.create({
   name: {
     ...typography.body.md,
     color: colors.text.primary,
-    fontWeight: '500',
   },
   type: {
     ...typography.label.sm,

@@ -1,9 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors, typography, spacing, radius } from '@theme/index';
 import { formatCurrency } from '@utils/currency';
-import { formatMonthYear } from '@utils/date';
 
 interface BalanceCardProps {
   balance: number;
@@ -17,29 +15,25 @@ export function BalanceCard({
   balance,
   totalIncome,
   totalExpense,
-  currentDate,
   currency = 'BRL',
 }: BalanceCardProps) {
   const isPositive = balance >= 0;
 
   return (
     <View style={styles.container}>
-      {/* Saldo principal */}
-      <View style={styles.header}>
-        <Text style={styles.label}>Saldo atual</Text>
-        <Text style={styles.period}>{formatMonthYear(currentDate)}</Text>
-      </View>
-
-      <Text style={[styles.balance, { color: isPositive ? colors.text.primary : colors.semantic.expense }]}>
+      <Text style={styles.label}>Saldo</Text>
+      <Text
+        style={[
+          styles.balance,
+          { color: isPositive ? colors.text.primary : colors.semantic.expense },
+        ]}
+      >
         {formatCurrency(balance, currency)}
       </Text>
 
-      {/* Entradas e Saídas */}
       <View style={styles.row}>
         <View style={styles.summaryItem}>
-          <View style={[styles.iconWrapper, { backgroundColor: colors.semantic.incomeMuted }]}>
-            <MaterialCommunityIcons name="arrow-down" size={16} color={colors.semantic.income} />
-          </View>
+          <View style={[styles.dot, { backgroundColor: colors.semantic.income }]} />
           <View>
             <Text style={styles.summaryLabel}>Entradas</Text>
             <Text style={[styles.summaryValue, { color: colors.semantic.income }]}>
@@ -48,12 +42,10 @@ export function BalanceCard({
           </View>
         </View>
 
-        <View style={styles.separator} />
+        <View style={styles.sep} />
 
         <View style={styles.summaryItem}>
-          <View style={[styles.iconWrapper, { backgroundColor: colors.semantic.expenseMuted }]}>
-            <MaterialCommunityIcons name="arrow-up" size={16} color={colors.semantic.expense} />
-          </View>
+          <View style={[styles.dot, { backgroundColor: colors.semantic.expense }]} />
           <View>
             <Text style={styles.summaryLabel}>Saídas</Text>
             <Text style={[styles.summaryValue, { color: colors.semantic.expense }]}>
@@ -69,57 +61,41 @@ export function BalanceCard({
 const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.background.secondary,
-    borderRadius: radius.xl,
+    borderRadius: radius.lg,
     padding: spacing['2xl'],
-    gap: spacing.lg,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    gap: spacing.md,
   },
   label: {
-    ...typography.label.md,
-    color: colors.text.secondary,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  period: {
-    ...typography.label.md,
+    ...typography.label.sm,
     color: colors.text.tertiary,
-    textTransform: 'capitalize',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
   },
   balance: {
     ...typography.mono.xl,
-    fontSize: 40,
+    fontSize: 36,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.background.tertiary,
-    borderRadius: radius.md,
-    padding: spacing.lg,
+    marginTop: spacing.sm,
   },
   summaryItem: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.md,
+    gap: spacing.sm,
   },
-  separator: {
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  sep: {
     width: 1,
-    height: 32,
+    height: 28,
     backgroundColor: colors.border.default,
     marginHorizontal: spacing.md,
-  },
-  iconWrapper: {
-    width: 32,
-    height: 32,
-    borderRadius: radius.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   summaryLabel: {
     ...typography.label.sm,
@@ -127,6 +103,6 @@ const styles = StyleSheet.create({
   },
   summaryValue: {
     ...typography.mono.sm,
-    marginTop: 2,
+    marginTop: 1,
   },
 });

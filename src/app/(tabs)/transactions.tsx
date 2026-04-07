@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TextInput } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  Text,
+  Animated,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors, typography, spacing, radius } from '@theme/index';
@@ -9,12 +16,17 @@ import { usePreferencesStore } from '@store/preferences-store';
 import { TransactionList } from '@/components/transaction/transaction-list';
 import { ScreenHeader } from '@/components/layout/screen-header';
 import { Badge } from '@ui/badge';
-import { TouchableOpacity } from 'react-native';
+import { CategoriesContent } from '@/components/category/categories-content';
+import { useSwipeNavigation } from '@hooks/use-swipe-navigation';
+
+type Section = 'transactions' | 'categories';
 
 export default function TransactionsScreen() {
+  const [section, setSection] = useState<Section>('transactions');
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<TransactionType | undefined>();
   const currency = usePreferencesStore((s) => s.preferences.currency);
+  const { panHandlers, animatedStyle } = useSwipeNavigation('transactions');
 
   const transactions = useTransactions({
     search: search || undefined,
@@ -29,51 +41,84 @@ export default function TransactionsScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <ScreenHeader title="Lançamentos" subtitle={`${transactions.length} registros`} />
-
-      {/* Busca */}
-      <View style={styles.searchWrapper}>
-        <View style={styles.searchContainer}>
-          <MaterialCommunityIcons name="magnify" size={20} color={colors.text.tertiary} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Buscar lançamento..."
-            placeholderTextColor={colors.text.tertiary}
-            value={search}
-            onChangeText={setSearch}
-          />
-          {search.length > 0 && (
-            <TouchableOpacity onPress={() => setSearch('')}>
-              <MaterialCommunityIcons name="close-circle" size={18} color={colors.text.tertiary} />
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
-
-      {/* Filtros */}
-      <View style={styles.filtersRow}>
-        {filters.map((f) => (
+      <Animated.View style={animatedStyle} {...panHandlers}>
+        {/* Toggle de seção */}
+        <View style={styles.sectionToggle}>
           <TouchableOpacity
-            key={String(f.value)}
-            style={[styles.filterBtn, typeFilter === f.value && styles.filterBtnActive]}
-            onPress={() => setTypeFilter(f.value)}
-            activeOpacity={0.75}
+            style={[styles.toggleBtn, section === 'transactions' && styles.toggleBtnActive]}
+            onPress={() => setSection('transactions')}
+            activeOpacity={0.8}
           >
-            <Badge
-              label={f.label}
-              variant={
-                f.value === 'income' ? 'income' : f.value === 'expense' ? 'expense' : undefined
-              }
-              size="md"
-            />
+            <Text style={[styles.toggleText, section === 'transactions' && styles.toggleTextActive]}>
+              Lançamentos
+            </Text>
           </TouchableOpacity>
-        ))}
-      </View>
+          <TouchableOpacity
+            style={[styles.toggleBtn, section === 'categories' && styles.toggleBtnActive]}
+            onPress={() => setSection('categories')}
+            activeOpacity={0.8}
+          >
+            <Text style={[styles.toggleText, section === 'categories' && styles.toggleTextActive]}>
+              Categorias
+            </Text>
+          </TouchableOpacity>
+        </View>
 
-      {/* Lista */}
-      <View style={styles.list}>
-        <TransactionList transactions={transactions} currency={currency} />
-      </View>
+        {section === 'transactions' ? (
+          <>
+            <ScreenHeader title="Lançamentos" subtitle={`${transactions.length} registros`} />
+
+            {/* Busca */}
+            <View style={styles.searchWrapper}>
+              <View style={styles.searchContainer}>
+                <MaterialCommunityIcons name="magnify" size={20} color={colors.text.tertiary} />
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="Buscar lançamento..."
+                  placeholderTextColor={colors.text.tertiary}
+                  value={search}
+                  onChangeText={setSearch}
+                />
+                {search.length > 0 && (
+                  <TouchableOpacity onPress={() => setSearch('')}>
+                    <MaterialCommunityIcons name="close-circle" size={18} color={colors.text.tertiary} />
+                  </TouchableOpacity>
+                )}
+              </View>
+            </View>
+
+            {/* Filtros */}
+            <View style={styles.filtersRow}>
+              {filters.map((f) => (
+                <TouchableOpacity
+                  key={String(f.value)}
+                  style={[styles.filterBtn, typeFilter === f.value && styles.filterBtnActive]}
+                  onPress={() => setTypeFilter(f.value)}
+                  activeOpacity={0.75}
+                >
+                  <Badge
+                    label={f.label}
+                    variant={
+                      f.value === 'income' ? 'income' : f.value === 'expense' ? 'expense' : undefined
+                    }
+                    size="md"
+                  />
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {/* Lista */}
+            <View style={styles.list}>
+              <TransactionList transactions={transactions} currency={currency} />
+            </View>
+          </>
+        ) : (
+          <>
+            <ScreenHeader title="Categorias" />
+            <CategoriesContent />
+          </>
+        )}
+      </Animated.View>
     </SafeAreaView>
   );
 }
@@ -82,6 +127,28 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: colors.background.primary,
+  },
+  sectionToggle: {
+    flexDirection: 'row',
+    marginHorizontal: spacing['2xl'],
+    marginTop: spacing.md,
+    marginBottom: spacing.xs,
+    gap: spacing.xs,
+  },
+  toggleBtn: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    borderRadius: radius.sm,
+  },
+  toggleBtnActive: {
+    backgroundColor: colors.background.tertiary,
+  },
+  toggleText: {
+    ...typography.label.md,
+    color: colors.text.tertiary,
+  },
+  toggleTextActive: {
+    color: colors.text.primary,
   },
   searchWrapper: {
     paddingHorizontal: spacing['2xl'],
