@@ -32,7 +32,10 @@ export default function DashboardScreen() {
 
   useEffect(() => {
     if (!onboardingCompleted) {
-      router.push('/(modals)/onboarding-profile');
+      const t = setTimeout(() => {
+        router.push('/(modals)/onboarding-profile');
+      }, 100);
+      return () => clearTimeout(t);
     }
   }, [onboardingCompleted]);
 
