@@ -10,11 +10,11 @@ interface CategoryIconProps {
 
 /**
  * Renderiza emoji ou MaterialCommunityIcons automaticamente.
- * Se o icon contiver caractere emoji (não-ASCII simples), usa Text.
- * Caso contrário, usa MaterialCommunityIcons (compatibilidade com categorias legadas).
+ * Ícones do MaterialCommunityIcons são sempre kebab-case ASCII (ex: "cash-multiple").
+ * Qualquer outra coisa é tratada como emoji/texto.
  */
 function isEmoji(str: string): boolean {
-  return /\p{Emoji}/u.test(str) && !/^[a-z0-9-]+$/.test(str);
+  return !/^[a-z0-9-]+$/.test(str);
 }
 
 export function CategoryIcon({ icon, size = 22, color }: CategoryIconProps) {
