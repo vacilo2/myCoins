@@ -135,7 +135,7 @@ export async function pickAndParseCSV(): Promise<ParseResult | null> {
 
   const asset = result.assets[0];
   const content = await FileSystem.readAsStringAsync(asset.uri, {
-    encoding: FileSystem.EncodingType.UTF8,
+    encoding: 'utf8' as any,
   });
 
   const rows = parseCSV(content);
