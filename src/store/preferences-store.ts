@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserPreferences } from '@/types';
 import { STORAGE_KEYS } from '@utils/constants';
+import { computeProfileLevel } from '@utils/profile';
 
 interface PreferencesState {
   preferences: UserPreferences;
@@ -16,6 +17,15 @@ const DEFAULT_PREFERENCES: UserPreferences = {
   name: '',
   currency: 'BRL',
   theme: 'dark',
+  monthlyIncome: 0,
+  savedAmount: 0,
+  onboardingCompleted: false,
+  financialGoal: '',
+  spendingProfile: 'desconhecido',
+  topSpendingCategories: [],
+  incomeType: '',
+  savingsGoalPct: 0,
+  profileCompletionLevel: 0,
 };
 
 export const usePreferencesStore = create<PreferencesState>()(
@@ -25,7 +35,10 @@ export const usePreferencesStore = create<PreferencesState>()(
       isHydrated: false,
 
       updatePreferences: (data) => {
-        set((state) => ({ preferences: { ...state.preferences, ...data } }));
+        set((state) => {
+          const merged = { ...state.preferences, ...data };
+          return { preferences: { ...merged, profileCompletionLevel: computeProfileLevel(merged) } };
+        });
       },
 
       setHydrated: (value) => set({ isHydrated: value }),

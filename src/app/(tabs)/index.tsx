@@ -11,11 +11,16 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { colors, typography, spacing } from '@theme/index';
 import { usePreferencesStore } from '@store/preferences-store';
-import { useSummary, useTopCategories } from '@hooks/use-summary';
+import { useTopCategories } from '@hooks/use-summary';
 import { useTransactions } from '@hooks/use-transactions';
+import { useFinancialInsights } from '@hooks/use-financial-insights';
 import { BalanceCard } from '@/components/dashboard/balance-card';
 import { TopCategories } from '@/components/dashboard/top-categories';
 import { TransactionCard } from '@/components/transaction/transaction-card';
+import { SmartGreeting } from '@/components/dashboard/smart-greeting';
+import { HealthIndicator } from '@/components/dashboard/health-indicator';
+import { InsightCards } from '@/components/dashboard/insight-cards';
+import { ProfileProgressCard } from '@/components/dashboard/profile-progress-card';
 import { useCategoryStore } from '@store/category-store';
 import { getPreviousMonth, getNextMonth, formatMonthYear } from '@utils/date';
 import { useUIStore } from '@store/ui-store';
@@ -28,14 +33,15 @@ export default function DashboardScreen() {
     setCurrentDate(date);
     setSelectedDate(date.getMonth() + 1, date.getFullYear());
   }
+
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth() + 1;
 
   const preferences = usePreferencesStore((s) => s.preferences);
-  const summary = useSummary(year, month);
   const topCategories = useTopCategories(year, month, 4);
   const recentTransactions = useTransactions({ month, year });
   const getCategoryById = useCategoryStore((s) => s.getCategoryById);
+  const insights = useFinancialInsights(year, month);
 
   const recent = recentTransactions.slice(0, 5);
 
@@ -46,15 +52,13 @@ export default function DashboardScreen() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
+        {/* Header com saudação inteligente */}
         <View style={styles.header}>
-          <View>
-            <Text style={styles.greeting}>
-              {preferences.name ? `Olá, ${preferences.name}` : 'Olá 👋'}
-            </Text>
-            <Text style={styles.subtitle}>Seu resumo financeiro</Text>
-          </View>
+          <SmartGreeting name={preferences.name} healthStatus={insights.healthStatus} />
         </View>
+
+        {/* Card de progresso do perfil */}
+        <ProfileProgressCard />
 
         {/* Navegação de mês */}
         <View style={styles.monthNav}>
@@ -73,14 +77,26 @@ export default function DashboardScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Card de saldo */}
-        <BalanceCard
-          balance={summary.balance}
-          totalIncome={summary.totalIncome}
-          totalExpense={summary.totalExpense}
-          currentDate={currentDate}
-          currency={preferences.currency}
-        />
+        {/* Card de saldo + indicador de saúde */}
+        <View style={styles.balanceBlock}>
+          <BalanceCard
+            balance={insights.balance}
+            totalIncome={insights.totalIncome}
+            totalExpense={insights.totalExpense}
+            currentDate={currentDate}
+            currency={preferences.currency}
+          />
+          <View style={styles.healthRow}>
+            <HealthIndicator status={insights.healthStatus} />
+          </View>
+        </View>
+
+        {/* Cards de insight (orçamento, poupança, projeção) */}
+        {insights.monthlyIncome > 0 && (
+          <View style={styles.insightSection}>
+            <InsightCards insights={insights} currency={preferences.currency} />
+          </View>
+        )}
 
         {/* Top Categorias */}
         {topCategories.length > 0 && (
@@ -135,18 +151,7 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  greeting: {
-    ...typography.heading.xl,
-    color: colors.text.primary,
-  },
-  subtitle: {
-    ...typography.body.md,
-    color: colors.text.secondary,
-    marginTop: 2,
+    gap: 2,
   },
   monthNav: {
     flexDirection: 'row',
@@ -160,6 +165,16 @@ const styles = StyleSheet.create({
     textTransform: 'capitalize',
     minWidth: 140,
     textAlign: 'center',
+  },
+  balanceBlock: {
+    gap: spacing.sm,
+  },
+  healthRow: {
+    flexDirection: 'row',
+    paddingHorizontal: spacing.xs,
+  },
+  insightSection: {
+    marginHorizontal: -spacing['2xl'],
   },
   section: {
     gap: spacing.md,

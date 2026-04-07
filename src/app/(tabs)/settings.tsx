@@ -100,9 +100,18 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        {/* Importar */}
+        {/* Dados */}
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>Dados</Text>
+          <TouchableOpacity
+            style={styles.actionBtn}
+            onPress={() => router.push('/(modals)/financial-profile')}
+            activeOpacity={0.8}
+          >
+            <MaterialCommunityIcons name="account-cog-outline" size={18} color={colors.accent.primary} />
+            <Text style={styles.actionText}>Perfil financeiro</Text>
+            <MaterialCommunityIcons name="chevron-right" size={18} color={colors.text.tertiary} />
+          </TouchableOpacity>
           <TouchableOpacity
             style={styles.actionBtn}
             onPress={() => router.push('/(modals)/import-csv')}

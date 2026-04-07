@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet } from 'react-native';
+import { router } from 'expo-router';
 import { useTransactionStore } from '@store/transaction-store';
 import { useCategoryStore } from '@store/category-store';
 import { usePreferencesStore } from '@store/preferences-store';
@@ -15,12 +16,16 @@ export default function RootLayout() {
   const transactionHydrated = useTransactionStore((s) => s.isHydrated);
   const categoryHydrated = useCategoryStore((s) => s.isHydrated);
   const prefsHydrated = usePreferencesStore((s) => s.isHydrated);
+  const onboardingCompleted = usePreferencesStore((s) => s.preferences.onboardingCompleted);
 
   const isReady = transactionHydrated && categoryHydrated && prefsHydrated;
 
   useEffect(() => {
     if (isReady) {
       SplashScreen.hideAsync();
+      if (!onboardingCompleted) {
+        router.push('/(modals)/onboarding-profile');
+      }
     }
   }, [isReady]);
 
