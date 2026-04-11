@@ -1,9 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { useTransactionStore } from '@store/transaction-store';
 import { useCategoryStore } from '@store/category-store';
 import { usePreferencesStore } from '@store/preferences-store';
@@ -15,8 +15,14 @@ export default function RootLayout() {
   const transactionHydrated = useTransactionStore((s) => s.isHydrated);
   const categoryHydrated = useCategoryStore((s) => s.isHydrated);
   const prefsHydrated = usePreferencesStore((s) => s.isHydrated);
+  const [timedOut, setTimedOut] = useState(false);
 
-  const isReady = transactionHydrated && categoryHydrated && prefsHydrated;
+  const isReady = (transactionHydrated && categoryHydrated && prefsHydrated) || timedOut;
+
+  useEffect(() => {
+    const timer = setTimeout(() => setTimedOut(true), 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (isReady) {
