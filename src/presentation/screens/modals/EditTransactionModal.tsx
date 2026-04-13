@@ -11,10 +11,7 @@ export function EditTransactionModal() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const transaction = useTransactionStore((s) => s.transactions.find((t) => t.id === id));
 
-  if (!transaction) {
-    router.back();
-    return null;
-  }
+  if (!transaction) return null;
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>

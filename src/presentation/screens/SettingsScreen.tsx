@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -13,22 +13,23 @@ import { CURRENCIES } from '@utils/constants';
 export function SettingsScreen() {
   const preferences = usePreferencesStore((s) => s.preferences);
   const updatePreferences = usePreferencesStore((s) => s.updatePreferences);
-  const deleteAll = useTransactionStore((s) => s.transactions);
-
   function handleClearData() {
+    const doReset = () => useTransactionStore.setState({ transactions: [] });
+
+    if (Platform.OS === 'web') {
+      // eslint-disable-next-line no-alert
+      if (window.confirm('Apagar todos os lançamentos? Esta ação não pode ser desfeita.')) {
+        doReset();
+      }
+      return;
+    }
+
     Alert.alert(
-      'Apagar todos os dados',
-      'Esta ação não pode ser desfeita. Todos os lançamentos serão removidos.',
+      'Apagar todos os lançamentos',
+      'Esta ação não pode ser desfeita.',
       [
         { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Apagar',
-          style: 'destructive',
-          onPress: () => {
-            // clear via store reset
-            useTransactionStore.setState({ transactions: [] });
-          },
-        },
+        { text: 'Apagar', style: 'destructive', onPress: doReset },
       ]
     );
   }
@@ -90,7 +91,7 @@ export function SettingsScreen() {
           <View style={styles.card}>
             <View style={styles.row}>
               <Text style={styles.rowLabel}>Versão</Text>
-              <Text style={styles.rowValue}>1.0.0</Text>
+              <Text style={styles.rowValue}>1.1.0</Text>
             </View>
             <View style={styles.divider} />
             <View style={styles.row}>

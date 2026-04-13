@@ -38,7 +38,7 @@ export function EditCategoryModal() {
   const [emojiModalOpen, setEmojiModalOpen] = useState(false);
   const [emojiInput, setEmojiInput] = useState('');
 
-  if (!category) { router.back(); return null; }
+  if (!category) return null;
 
   function handleSave() {
     if (!isValidCategoryName(name)) { setError('Nome deve ter entre 2 e 30 caracteres'); return; }

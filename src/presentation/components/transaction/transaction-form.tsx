@@ -19,6 +19,7 @@ import { useTransactionStore } from '@store/transaction-store';
 import { useCategoryStore } from '@store/category-store';
 import { usePreferencesStore } from '@store/preferences-store';
 import { Input } from '@presentation/ui/input';
+import { CategoryIcon } from '@presentation/ui/category-icon';
 import { Button } from '@presentation/ui/button';
 import { DatePickerField } from '@presentation/ui/date-picker-field';
 import { formatCurrency, parseCurrencyInput } from '@utils/currency';
@@ -81,6 +82,15 @@ export function TransactionForm({ existing }: TransactionFormProps) {
 
   function handleDelete() {
     if (!existing) return;
+    if (Platform.OS === 'web') {
+      // Alert.alert não funciona corretamente na web
+      // eslint-disable-next-line no-alert
+      if (window.confirm('Excluir este lançamento?')) {
+        deleteTransaction(existing.id);
+        router.back();
+      }
+      return;
+    }
     Alert.alert('Excluir lançamento', 'Tem certeza?', [
       { text: 'Cancelar', style: 'cancel' },
       {
@@ -174,8 +184,8 @@ export function TransactionForm({ existing }: TransactionFormProps) {
                 onPress={() => setCategoryId(cat.id)}
                 activeOpacity={0.75}
               >
-                <MaterialCommunityIcons
-                  name={cat.icon as any}
+                <CategoryIcon
+                  icon={cat.icon}
                   size={20}
                   color={categoryId === cat.id ? cat.color : colors.text.secondary}
                 />
