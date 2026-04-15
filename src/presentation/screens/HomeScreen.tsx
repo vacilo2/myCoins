@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -26,29 +26,43 @@ import { toISODate } from '@utils/date';
 import { formatCurrency } from '@utils/currency';
 
 // ---------------------------------------------------------------------------
-// Dicas organizadas por categoria
-// (estrutura preparada para personagem/mascote futuro)
+// Pool completo de dicas — exibidas aleatoriamente a cada abertura
 // ---------------------------------------------------------------------------
 type TipCategory = {
   id: string;
   label: string;
   icon: string;
   color: string;
-  tips: string[];
+  pool: string[];  // todos os exemplos disponíveis
 };
 
-const TIP_CATEGORIES: TipCategory[] = [
+const TIP_POOL: TipCategory[] = [
   {
     id: 'expense',
     label: 'Despesas',
     icon: 'arrow-up-circle-outline',
     color: colors.semantic.expense,
-    tips: [
+    pool: [
       'gastei 45 reais com almoço',
       'paguei 120 de farmácia',
       'comprei roupa por 200 reais',
       'saiu 80 reais de gasolina',
       'paguei 150 de academia',
+      'gastei 35 com lanche',
+      'paguei 250 de conta de luz',
+      'saiu 90 de uber',
+      'gastei 60 com mercado',
+      'paguei 180 de internet',
+      'gastei 40 com café da manhã',
+      'paguei 300 de aluguel',
+      'saiu 55 de farmácia',
+      'gastei 70 com pizza',
+      'paguei 200 de plano de saúde',
+      'saiu 150 de condomínio',
+      'gastei 25 com estacionamento',
+      'paguei 100 de dentista',
+      'gastei 80 com livro',
+      'saiu 45 de pedágio',
     ],
   },
   {
@@ -56,11 +70,22 @@ const TIP_CATEGORIES: TipCategory[] = [
     label: 'Receitas',
     icon: 'arrow-down-circle-outline',
     color: colors.semantic.income,
-    tips: [
+    pool: [
       'recebi 3000 de salário',
       'ganhei 500 de freela',
       'entrou 200 de dividendos',
       'recebi 150 de freelance',
+      'ganhei 800 de projeto',
+      'entrou 1200 de bônus',
+      'recebi 400 de aluguel',
+      'ganhei 250 de venda',
+      'entrou 600 de consultoria',
+      'recebi 100 de cashback',
+      'ganhei 2500 de salário',
+      'entrou 350 de rendimentos',
+      'recebi 180 de reembolso',
+      'ganhei 700 de comissão',
+      'entrou 450 de investimento',
     ],
   },
   {
@@ -68,14 +93,28 @@ const TIP_CATEGORIES: TipCategory[] = [
     label: 'Crédito',
     icon: 'credit-card-outline',
     color: colors.accent.primary,
-    tips: [
+    pool: [
       'gastei 1200 no crédito em 12x',
       'comprei notebook 3600 dividi em 24x',
       'parcelei 800 em 6 vezes',
       'gastei 500 no cartão em 3x',
+      'comprei celular 2400 em 12x',
+      'parcelei 1500 em 10 vezes',
+      'gastei 900 no crédito em 9x',
+      'comprei geladeira 2800 dividi em 18x',
+      'parcelei 600 em 4 vezes',
+      'gastei 3000 no cartão em 24x',
+      'comprei TV 1800 em 12x',
+      'parcelei 400 em 2 vezes',
     ],
   },
 ];
+
+// Seleciona N itens aleatórios de um array sem repetição
+function pickRandom<T>(arr: T[], n: number): T[] {
+  const shuffled = [...arr].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, n);
+}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -92,61 +131,158 @@ function normStr(s: string): string {
 }
 
 // ---------------------------------------------------------------------------
-// Sub-componente: Seção de dicas
-// (o espaço do mascote fica reservado acima das dicas)
+// Mascote com animação de digitação
 // ---------------------------------------------------------------------------
-function TipsSection({ onSelectTip }: { onSelectTip: (tip: string) => void }) {
-  const [activeTab, setActiveTab] = useState('expense');
-  const active = TIP_CATEGORIES.find(c => c.id === activeTab)!;
+function MascotBubble({ isTyping, message }: { isTyping: boolean; message: string }) {
+  const bounceAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim  = useRef(new Animated.Value(1)).current;
+  const loopRef    = useRef<Animated.CompositeAnimation | null>(null);
+
+  useEffect(() => {
+    if (isTyping) {
+      // Animação de "pensando": leve bounce contínuo
+      loopRef.current = Animated.loop(
+        Animated.sequence([
+          Animated.timing(bounceAnim, { toValue: -6, duration: 300, useNativeDriver: true }),
+          Animated.timing(bounceAnim, { toValue: 0,  duration: 300, useNativeDriver: true }),
+        ])
+      );
+      loopRef.current.start();
+      // Pulso de escala ao iniciar digitação
+      Animated.sequence([
+        Animated.timing(scaleAnim, { toValue: 1.15, duration: 150, useNativeDriver: true }),
+        Animated.timing(scaleAnim, { toValue: 1,    duration: 150, useNativeDriver: true }),
+      ]).start();
+    } else {
+      loopRef.current?.stop();
+      Animated.timing(bounceAnim, { toValue: 0, duration: 200, useNativeDriver: true }).start();
+    }
+    return () => loopRef.current?.stop();
+  }, [isTyping]);
 
   return (
-    <View style={tipStyles.container}>
-      {/* ── Área reservada para o mascote ── */}
-      <View style={tipStyles.mascotArea}>
-        <View style={tipStyles.mascotAvatar}>
-          <MaterialCommunityIcons name="robot-happy-outline" size={24} color={colors.accent.primary} />
-        </View>
-        <View style={tipStyles.mascotBubble}>
-          <Text style={tipStyles.mascotText}>
-            Toque em uma dica ou escreva do seu jeito!
-          </Text>
-        </View>
+    <View style={tipStyles.mascotArea}>
+      {/* Avatar do mascote — substitua por <Image> quando tiver o personagem */}
+      <Animated.View
+        style={[
+          tipStyles.mascotAvatar,
+          isTyping && tipStyles.mascotAvatarTyping,
+          { transform: [{ translateY: bounceAnim }, { scale: scaleAnim }] },
+        ]}
+      >
+        <MaterialCommunityIcons
+          name={isTyping ? 'robot-excited-outline' : 'robot-happy-outline'}
+          size={24}
+          color={isTyping ? colors.accent.primary : colors.text.secondary}
+        />
+      </Animated.View>
+
+      {/* Balão de fala */}
+      <View style={[tipStyles.mascotBubble, isTyping && tipStyles.mascotBubbleTyping]}>
+        <Text style={tipStyles.mascotText}>
+          {isTyping ? 'Entendendo o que você digitou...' : message}
+        </Text>
+        {isTyping && (
+          <View style={tipStyles.dotsRow}>
+            {[0, 1, 2].map(i => (
+              <TypingDot key={i} delay={i * 150} />
+            ))}
+          </View>
+        )}
+      </View>
+    </View>
+  );
+}
+
+function TypingDot({ delay }: { delay: number }) {
+  const anim = useRef(new Animated.Value(0.3)).current;
+
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.delay(delay),
+        Animated.timing(anim, { toValue: 1,   duration: 300, useNativeDriver: true }),
+        Animated.timing(anim, { toValue: 0.3, duration: 300, useNativeDriver: true }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, []);
+
+  return <Animated.View style={[tipStyles.dot, { opacity: anim }]} />;
+}
+
+// ---------------------------------------------------------------------------
+// Seção de dicas
+// ---------------------------------------------------------------------------
+function TipsSection({
+  onSelectTip,
+  visible,
+  onToggleVisible,
+  randomTips,
+}: {
+  onSelectTip: (tip: string) => void;
+  visible: boolean;
+  onToggleVisible: () => void;
+  randomTips: Record<string, string[]>;
+}) {
+  const [activeTab, setActiveTab] = useState('expense');
+  const active    = TIP_POOL.find(c => c.id === activeTab)!;
+  const shownTips = randomTips[activeTab] ?? [];
+
+  return (
+    <View style={tipStyles.sectionContainer}>
+      {/* Cabeçalho com toggle */}
+      <View style={tipStyles.sectionHeader}>
+        <Text style={tipStyles.sectionTitle}>Dicas de frases</Text>
+        <TouchableOpacity onPress={onToggleVisible} activeOpacity={0.7} style={tipStyles.toggleBtn}>
+          <MaterialCommunityIcons
+            name={visible ? 'chevron-up' : 'chevron-down'}
+            size={16}
+            color={colors.text.tertiary}
+          />
+          <Text style={tipStyles.toggleText}>{visible ? 'Ocultar' : 'Mostrar'}</Text>
+        </TouchableOpacity>
       </View>
 
-      {/* ── Abas de categoria ── */}
-      <View style={tipStyles.tabs}>
-        {TIP_CATEGORIES.map(cat => (
-          <TouchableOpacity
-            key={cat.id}
-            style={[tipStyles.tab, activeTab === cat.id && { borderColor: cat.color, backgroundColor: cat.color + '18' }]}
-            onPress={() => setActiveTab(cat.id)}
-            activeOpacity={0.75}
-          >
-            <MaterialCommunityIcons
-              name={cat.icon as any}
-              size={14}
-              color={activeTab === cat.id ? cat.color : colors.text.tertiary}
-            />
-            <Text style={[tipStyles.tabText, activeTab === cat.id && { color: cat.color }]}>
-              {cat.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      {visible && (
+        <>
+          {/* Abas */}
+          <View style={tipStyles.tabs}>
+            {TIP_POOL.map(cat => (
+              <TouchableOpacity
+                key={cat.id}
+                style={[tipStyles.tab, activeTab === cat.id && { borderColor: cat.color, backgroundColor: cat.color + '18' }]}
+                onPress={() => setActiveTab(cat.id)}
+                activeOpacity={0.75}
+              >
+                <MaterialCommunityIcons
+                  name={cat.icon as any}
+                  size={13}
+                  color={activeTab === cat.id ? cat.color : colors.text.tertiary}
+                />
+                <Text style={[tipStyles.tabText, activeTab === cat.id && { color: cat.color }]}>
+                  {cat.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
 
-      {/* ── Chips de dicas ── */}
-      <View style={tipStyles.chips}>
-        {active.tips.map((tip, i) => (
-          <TouchableOpacity
-            key={i}
-            style={[tipStyles.chip, { borderColor: active.color + '55' }]}
-            onPress={() => onSelectTip(tip)}
-            activeOpacity={0.75}
-          >
-            <Text style={[tipStyles.chipText, { color: active.color }]}>{tip}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+          {/* Chips */}
+          <View style={tipStyles.chips}>
+            {shownTips.map((tip, i) => (
+              <TouchableOpacity
+                key={i}
+                style={[tipStyles.chip, { borderColor: active.color + '55' }]}
+                onPress={() => onSelectTip(tip)}
+                activeOpacity={0.75}
+              >
+                <Text style={[tipStyles.chipText, { color: active.color }]}>{tip}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </>
+      )}
     </View>
   );
 }
@@ -155,10 +291,20 @@ function TipsSection({ onSelectTip }: { onSelectTip: (tip: string) => void }) {
 // Tela principal
 // ---------------------------------------------------------------------------
 export function HomeScreen() {
-  const [inputText, setInputText] = useState('');
-  const [feedback, setFeedback]   = useState<{ message: string; isError: boolean } | null>(null);
-  const feedbackOpacity           = useRef(new Animated.Value(0)).current;
-  const inputRef                  = useRef<TextInput>(null);
+  const [inputText, setInputText]     = useState('');
+  const [feedback, setFeedback]       = useState<{ message: string; isError: boolean } | null>(null);
+  const [tipsVisible, setTipsVisible] = useState(true);
+  const feedbackOpacity               = useRef(new Animated.Value(0)).current;
+  const inputRef                      = useRef<TextInput>(null);
+
+  const isTyping = inputText.trim().length > 0;
+
+  // Sorteia dicas uma vez por abertura da tela
+  const randomTips = useMemo(() => {
+    const result: Record<string, string[]> = {};
+    TIP_POOL.forEach(cat => { result[cat.id] = pickRandom(cat.pool, 5); });
+    return result;
+  }, []);
 
   const addTransaction  = useTransactionStore(s => s.addTransaction);
   const addInstallments = useTransactionStore(s => s.addInstallments);
@@ -174,7 +320,7 @@ export function HomeScreen() {
   const findCategoryId = useCallback(
     (categoryName: string, type: 'income' | 'expense'): string => {
       const target = normStr(categoryName);
-      const exact = categories.find(c => normStr(c.name) === target && (c.type === type || c.type === 'both'));
+      const exact  = categories.find(c => normStr(c.name) === target && (c.type === type || c.type === 'both'));
       if (exact) return exact.id;
       const outros = categories.find(c => normStr(c.name) === 'outros' && (c.type === type || c.type === 'both'));
       return outros?.id ?? categories[0]?.id ?? 'unknown';
@@ -184,9 +330,9 @@ export function HomeScreen() {
 
   const findCategoryByText = useCallback(
     (text: string, type: 'income' | 'expense'): { id: string; name: string } | null => {
-      const normText = normStr(text);
+      const normText   = normStr(text);
       const compatible = categories.filter(c => c.type === type || c.type === 'both');
-      const sorted = [...compatible].sort((a, b) => b.name.length - a.name.length);
+      const sorted     = [...compatible].sort((a, b) => b.name.length - a.name.length);
       for (const cat of sorted) {
         if (normText.includes(normStr(cat.name))) return { id: cat.id, name: cat.name };
       }
@@ -251,6 +397,18 @@ export function HomeScreen() {
 
   const canSubmit = inputText.trim().length > 0 && isStoreReady;
 
+  // Mensagem do mascote quando não está digitando
+  const mascotIdleMessage = useMemo(() => {
+    const messages = [
+      'Toque em uma dica ou escreva do seu jeito!',
+      'Me conta o que gastou hoje?',
+      'Registre um lançamento para começar!',
+      'Dica: você pode parcelar no crédito também!',
+      'Controle seu dinheiro frase por frase 💪',
+    ];
+    return messages[Math.floor(Math.random() * messages.length)];
+  }, []);
+
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
@@ -266,8 +424,11 @@ export function HomeScreen() {
             <Text style={styles.greeting}>{buildGreeting(preferences.name)}</Text>
           </View>
 
-          {/* 2. Input compacto */}
-          <View style={styles.inputRow}>
+          {/* 2. Mascote */}
+          <MascotBubble isTyping={isTyping} message={mascotIdleMessage} />
+
+          {/* 3. Input compacto */}
+          <View style={[styles.inputRow, isTyping && styles.inputRowActive]}>
             <TextInput
               ref={inputRef}
               value={inputText}
@@ -290,7 +451,7 @@ export function HomeScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* 3. Feedback */}
+          {/* 4. Feedback */}
           {feedback && (
             <Animated.View style={[styles.feedbackStrip, feedback.isError && styles.feedbackError, { opacity: feedbackOpacity }]}>
               <MaterialCommunityIcons
@@ -304,10 +465,15 @@ export function HomeScreen() {
             </Animated.View>
           )}
 
-          {/* 4. Dicas */}
-          <TipsSection onSelectTip={handleSelectTip} />
+          {/* 5. Dicas */}
+          <TipsSection
+            onSelectTip={handleSelectTip}
+            visible={tipsVisible}
+            onToggleVisible={() => setTipsVisible(v => !v)}
+            randomTips={randomTips}
+          />
 
-          {/* 5. Recentes */}
+          {/* 6. Recentes */}
           {recentThree.length > 0 && (
             <View style={styles.recentSection}>
               <View style={styles.sectionHeader}>
@@ -332,7 +498,7 @@ export function HomeScreen() {
 
           {recentThree.length === 0 && (
             <View style={styles.emptyHint}>
-              <Text style={styles.emptyText}>Toque em uma dica acima ou escreva para registrar seu primeiro lançamento.</Text>
+              <Text style={styles.emptyText}>Toque em uma dica ou escreva para registrar seu primeiro lançamento.</Text>
             </View>
           )}
         </ScrollView>
@@ -342,27 +508,28 @@ export function HomeScreen() {
 }
 
 // ---------------------------------------------------------------------------
-// Styles — TipsSection
+// Styles — Mascote + Dicas
 // ---------------------------------------------------------------------------
 const tipStyles = StyleSheet.create({
-  container: {
-    gap: spacing.md,
-  },
-  // Área do mascote — preparada para imagem/personagem futuro
+  // Mascote
   mascotArea: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
   },
   mascotAvatar: {
-    width: 44,
-    height: 44,
+    width: 46,
+    height: 46,
     borderRadius: radius.full,
-    backgroundColor: colors.accent.muted,
+    backgroundColor: colors.surface.subtle,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: colors.accent.primary + '44',
+    borderWidth: 1.5,
+    borderColor: colors.border.default,
+  },
+  mascotAvatarTyping: {
+    backgroundColor: colors.accent.muted,
+    borderColor: colors.accent.primary,
   },
   mascotBubble: {
     flex: 1,
@@ -374,10 +541,51 @@ const tipStyles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border.subtle,
   },
+  mascotBubbleTyping: {
+    borderColor: colors.accent.primary + '55',
+    backgroundColor: colors.accent.muted,
+  },
   mascotText: {
     ...(typography.body.sm as object),
     color: colors.text.secondary,
   },
+  dotsRow: {
+    flexDirection: 'row',
+    gap: 4,
+    marginTop: 4,
+  },
+  dot: {
+    width: 5,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: colors.accent.primary,
+  },
+
+  // Seção de dicas
+  sectionContainer: {
+    gap: spacing.md,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  sectionTitle: {
+    ...(typography.label.md as object),
+    color: colors.text.secondary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  toggleBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+  },
+  toggleText: {
+    ...(typography.label.sm as object),
+    color: colors.text.tertiary,
+  },
+
   // Abas
   tabs: {
     flexDirection: 'row',
@@ -399,6 +607,7 @@ const tipStyles = StyleSheet.create({
     ...(typography.label.sm as object),
     color: colors.text.tertiary,
   },
+
   // Chips
   chips: {
     flexDirection: 'row',
@@ -440,7 +649,7 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
   },
 
-  // Input compacto — linha única com botão à direita
+  // Input
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -451,6 +660,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
     gap: spacing.sm,
+  },
+  inputRowActive: {
+    borderColor: colors.accent.primary + '88',
   },
   textInput: {
     ...(typography.body.md as object),
