@@ -172,7 +172,7 @@ function MascotBubble({ isTyping, message }: { isTyping: boolean; message: strin
         ]}
       >
         <Image
-          source={require('../../assets/images/mascot.png')}
+          source={require('../../../assets/images/mascot.png')}
           style={tipStyles.mascotImage}
           resizeMode="contain"
         />
