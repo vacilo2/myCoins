@@ -26,19 +26,25 @@ import { formatCurrency, parseCurrencyInput } from '@utils/currency';
 import { toISODate } from '@utils/date';
 import { isValidAmount } from '@utils/validators';
 import { useUIStore } from '@store/ui-store';
+import { useAuthStore } from '@store/auth-store';
 
 interface TransactionFormProps {
   existing?: Transaction;
 }
 
+const INSTALLMENT_PRESETS = [2, 3, 6, 12, 18, 24];
+
 export function TransactionForm({ existing }: TransactionFormProps) {
-  const addTransaction = useTransactionStore((s) => s.addTransaction);
+  const addTransaction    = useTransactionStore((s) => s.addTransaction);
+  const addInstallments   = useTransactionStore((s) => s.addInstallments);
   const updateTransaction = useTransactionStore((s) => s.updateTransaction);
   const deleteTransaction = useTransactionStore((s) => s.deleteTransaction);
+  const deleteInstallmentGroup = useTransactionStore((s) => s.deleteInstallmentGroup);
   const getCategoriesByType = useCategoryStore((s) => s.getCategoriesByType);
   const currency = usePreferencesStore((s) => s.preferences.currency);
   const selectedMonth = useUIStore((s) => s.selectedMonth);
-  const selectedYear = useUIStore((s) => s.selectedYear);
+  const selectedYear  = useUIStore((s) => s.selectedYear);
+  const authUser = useAuthStore((s) => s.user);
 
   function defaultDate() {
     if (existing) return existing.date.split('T')[0];
@@ -49,31 +55,42 @@ export function TransactionForm({ existing }: TransactionFormProps) {
     return toISODate(new Date(selectedYear, selectedMonth - 1, day));
   }
 
-  const [type, setType] = useState<TransactionType>(existing?.type ?? 'expense');
-  const [amountText, setAmountText] = useState(existing ? String(existing.amount) : '');
+  const [type, setType]               = useState<TransactionType>(existing?.type ?? 'expense');
+  const [amountText, setAmountText]   = useState(existing ? String(existing.amount) : '');
   const [description, setDescription] = useState(existing?.description ?? '');
-  const [categoryId, setCategoryId] = useState(existing?.categoryId ?? '');
-  const [date, setDate] = useState(defaultDate);
-  const [error, setError] = useState('');
+  const [categoryId, setCategoryId]   = useState(existing?.categoryId ?? '');
+  const [date, setDate]               = useState(defaultDate);
+  const [error, setError]             = useState('');
+
+  // Crédito / parcelamento
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'credit'>(
+    existing?.paymentMethod ?? 'cash'
+  );
+  const [installments, setInstallments]       = useState(existing?.installmentTotal ?? 2);
+  const [customInstallments, setCustomInstallments] = useState('');
+
+  const isCredit   = type === 'expense' && paymentMethod === 'credit';
+  const totalAmount = parseCurrencyInput(amountText);
+  const installmentAmount = isCredit && isValidAmount(totalAmount) && installments > 0
+    ? Math.round((totalAmount / installments) * 100) / 100
+    : null;
 
   const categories = getCategoriesByType(type);
 
   function handleSave() {
     const amount = parseCurrencyInput(amountText);
-    if (!isValidAmount(amount)) {
-      setError('Informe um valor válido');
-      return;
-    }
-    if (!categoryId) {
-      setError('Selecione uma categoria');
-      return;
-    }
+    if (!isValidAmount(amount)) { setError('Informe um valor válido'); return; }
+    if (!categoryId)             { setError('Selecione uma categoria'); return; }
     setError('');
 
+    const userId = authUser?.id;
+
     if (existing) {
-      updateTransaction(existing.id, { type, amount, categoryId, description, date });
+      updateTransaction(existing.id, { type, amount, categoryId, description, date }, userId);
+    } else if (isCredit && installments > 1) {
+      addInstallments({ totalAmount: amount, installments, categoryId, description, firstDate: date }, userId);
     } else {
-      addTransaction({ type, amount, categoryId, description, date });
+      addTransaction({ type, amount, categoryId, description, date, paymentMethod }, userId);
     }
 
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -172,6 +189,84 @@ export function TransactionForm({ existing }: TransactionFormProps) {
           value={date}
           onChange={setDate}
         />
+
+        {/* Pagamento — só para despesas e lançamentos novos */}
+        {type === 'expense' && !existing && (
+          <View style={styles.section}>
+            <Text style={styles.sectionLabel}>Pagamento</Text>
+            <View style={styles.paymentRow}>
+              {(['cash', 'credit'] as const).map((m) => (
+                <TouchableOpacity
+                  key={m}
+                  style={[styles.paymentBtn, paymentMethod === m && styles.paymentBtnActive]}
+                  onPress={() => setPaymentMethod(m)}
+                  activeOpacity={0.8}
+                >
+                  <MaterialCommunityIcons
+                    name={m === 'cash' ? 'cash' : 'credit-card-outline'}
+                    size={16}
+                    color={paymentMethod === m ? colors.accent.primary : colors.text.secondary}
+                  />
+                  <Text style={[styles.paymentText, paymentMethod === m && styles.paymentTextActive]}>
+                    {m === 'cash' ? 'À vista' : 'Crédito'}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {/* Seletor de parcelas */}
+            {isCredit && (
+              <View style={styles.installmentsSection}>
+                <Text style={styles.installmentsLabel}>Parcelas</Text>
+                <View style={styles.presetsRow}>
+                  {INSTALLMENT_PRESETS.map((n) => (
+                    <TouchableOpacity
+                      key={n}
+                      style={[styles.presetBtn, installments === n && styles.presetBtnActive]}
+                      onPress={() => { setInstallments(n); setCustomInstallments(''); }}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={[styles.presetText, installments === n && styles.presetTextActive]}>
+                        {n}x
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+                {/* Campo customizado */}
+                <View style={styles.customRow}>
+                  <Text style={styles.customLabel}>Outro:</Text>
+                  <TextInput
+                    value={customInstallments}
+                    onChangeText={(v) => {
+                      setCustomInstallments(v);
+                      const n = parseInt(v, 10);
+                      if (!isNaN(n) && n >= 1 && n <= 120) setInstallments(n);
+                    }}
+                    placeholder="ex: 36"
+                    placeholderTextColor={colors.text.tertiary}
+                    keyboardType="number-pad"
+                    style={styles.customInput}
+                    maxLength={3}
+                  />
+                </View>
+
+                {/* Preview do valor da parcela */}
+                {installmentAmount !== null && (
+                  <View style={styles.previewCard}>
+                    <MaterialCommunityIcons name="information-outline" size={14} color={colors.accent.primary} />
+                    <Text style={styles.previewText}>
+                      {installments}x de{' '}
+                      <Text style={styles.previewAmount}>
+                        {formatCurrency(installmentAmount, currency)}
+                      </Text>
+                      {' '}por mês
+                    </Text>
+                  </View>
+                )}
+              </View>
+            )}
+          </View>
+        )}
 
         {/* Categorias */}
         <View style={styles.section}>
@@ -303,5 +398,107 @@ const styles = StyleSheet.create({
     ...typography.body.sm,
     color: colors.semantic.expense,
     textAlign: 'center',
+  },
+
+  // Pagamento
+  paymentRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  paymentBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.md,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border.default,
+    backgroundColor: colors.background.tertiary,
+  },
+  paymentBtnActive: {
+    borderColor: colors.accent.primary,
+    backgroundColor: colors.accent.muted,
+  },
+  paymentText: {
+    ...typography.label.md,
+    color: colors.text.secondary,
+  },
+  paymentTextActive: {
+    color: colors.accent.primary,
+    fontWeight: '600',
+  },
+
+  // Parcelas
+  installmentsSection: {
+    gap: spacing.sm,
+    marginTop: spacing.xs,
+  },
+  installmentsLabel: {
+    ...typography.label.sm,
+    color: colors.text.tertiary,
+  },
+  presetsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.xs,
+  },
+  presetBtn: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: colors.border.default,
+    backgroundColor: colors.background.tertiary,
+  },
+  presetBtnActive: {
+    borderColor: colors.accent.primary,
+    backgroundColor: colors.accent.muted,
+  },
+  presetText: {
+    ...typography.label.md,
+    color: colors.text.secondary,
+  },
+  presetTextActive: {
+    color: colors.accent.primary,
+    fontWeight: '600',
+  },
+  customRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  customLabel: {
+    ...typography.label.md,
+    color: colors.text.secondary,
+  },
+  customInput: {
+    ...typography.body.md,
+    color: colors.text.primary,
+    backgroundColor: colors.background.tertiary,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: colors.border.default,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    width: 80,
+  },
+  previewCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    backgroundColor: colors.accent.muted,
+    borderRadius: radius.sm,
+    padding: spacing.md,
+  },
+  previewText: {
+    ...typography.body.sm,
+    color: colors.text.secondary,
+    flex: 1,
+  },
+  previewAmount: {
+    color: colors.accent.primary,
+    fontWeight: '700',
   },
 });

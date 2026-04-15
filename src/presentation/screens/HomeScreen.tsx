@@ -19,6 +19,7 @@ import { colors, typography, spacing, radius } from '@presentation/theme/index';
 import { useTransactionStore } from '@store/transaction-store';
 import { useCategoryStore } from '@store/category-store';
 import { usePreferencesStore } from '@store/preferences-store';
+import { useAuthStore } from '@store/auth-store';
 import { TransactionCard } from '@presentation/components/transaction/transaction-card';
 import { parseTransaction } from '@features/nlp/parse-transaction';
 import { toISODate } from '@utils/date';
@@ -47,8 +48,10 @@ export function HomeScreen() {
   const feedbackOpacity             = useRef(new Animated.Value(0)).current;
   const inputRef                    = useRef<TextInput>(null);
 
-  const addTransaction  = useTransactionStore(s => s.addTransaction);
-  const transactions    = useTransactionStore(s => s.transactions);
+  const addTransaction    = useTransactionStore(s => s.addTransaction);
+  const addInstallments   = useTransactionStore(s => s.addInstallments);
+  const transactions      = useTransactionStore(s => s.transactions);
+  const authUser          = useAuthStore(s => s.user);
   const categories      = useCategoryStore(s => s.categories);
   const getCategoryById = useCategoryStore(s => s.getCategoryById);
   const isStoreReady    = useCategoryStore(s => s.isHydrated);
@@ -134,13 +137,35 @@ export function HomeScreen() {
     const categoryId   = matchByText ? matchByText.id : findCategoryId(result.categoryName, result.type);
     const categoryName = matchByText ? matchByText.name : result.categoryName;
 
+    const userId = authUser?.id;
+
+    if (result.installments && result.installments > 1) {
+      addInstallments({
+        totalAmount:  result.amount,
+        installments: result.installments,
+        categoryId,
+        description:  result.description,
+        firstDate:    toISODate(new Date()),
+      }, userId);
+
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setInputText('');
+      inputRef.current?.clear();
+
+      const parcelValue = Math.round((result.amount / result.installments) * 100) / 100;
+      const formatted   = formatCurrency(parcelValue, preferences.currency || 'BRL');
+      showFeedback(`${result.installments}x de ${formatted} em ${categoryName} — Crédito`, false);
+      return;
+    }
+
     addTransaction({
-      type:        result.type,
-      amount:      result.amount,
+      type:          result.type,
+      amount:        result.amount,
       categoryId,
-      description: result.description,
-      date:        toISODate(new Date()),
-    });
+      description:   result.description,
+      date:          toISODate(new Date()),
+      paymentMethod: result.paymentMethod,
+    }, userId);
 
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     setInputText('');
@@ -148,7 +173,8 @@ export function HomeScreen() {
 
     const typeLabel = result.type === 'expense' ? 'Despesa' : 'Receita';
     const formatted = formatCurrency(result.amount, preferences.currency || 'BRL');
-    showFeedback(`${typeLabel} de ${formatted} registrada em ${categoryName}`, false);
+    const creditSuffix = result.paymentMethod === 'credit' ? ' — Crédito' : '';
+    showFeedback(`${typeLabel} de ${formatted} registrada em ${categoryName}${creditSuffix}`, false);
   }, [inputText, addTransaction, findCategoryId, showFeedback, preferences.currency]);
 
   const canSubmit = inputText.trim().length > 0 && isStoreReady;

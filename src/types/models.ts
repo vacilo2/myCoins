@@ -8,6 +8,12 @@ export interface Transaction {
   description: string;
   date: string; // ISO date string
   createdAt: string;
+
+  // Parcelamento (crédito)
+  paymentMethod?: 'cash' | 'credit';
+  installmentIndex?: number;    // 1, 2, 3 ... N
+  installmentTotal?: number;    // total de parcelas
+  installmentGroupId?: string;  // agrupa todas as parcelas do mesmo lançamento
 }
 
 export interface Category {

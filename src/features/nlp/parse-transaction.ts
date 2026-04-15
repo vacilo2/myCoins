@@ -3,6 +3,8 @@ export type ParseResult = {
   amount: number;
   categoryName: string;
   description: string;
+  paymentMethod?: 'cash' | 'credit';
+  installments?: number;
 };
 
 // ---------------------------------------------------------------------------
@@ -113,6 +115,32 @@ function detectCategory(normalised: string, type: 'income' | 'expense'): string 
 }
 
 // ---------------------------------------------------------------------------
+// Detecção de crédito e parcelas
+// ---------------------------------------------------------------------------
+function detectCredit(normalised: string): boolean {
+  return /credito|cartao|cart\u00e3o/.test(normalised);
+}
+
+function detectInstallments(normalised: string): number | null {
+  // "em 12x", "em 12 vezes", "12x", "parcelado em 12"
+  const patterns = [
+    /em\s+(\d+)\s*x\b/,
+    /em\s+(\d+)\s+vezes?/,
+    /\b(\d+)\s*x\b/,
+    /parcelado\s+em\s+(\d+)/,
+    /(\d+)\s+parcelas?/,
+  ];
+  for (const p of patterns) {
+    const m = normalised.match(p);
+    if (m) {
+      const n = parseInt(m[1], 10);
+      if (n >= 2 && n <= 120) return n;
+    }
+  }
+  return null;
+}
+
+// ---------------------------------------------------------------------------
 // Função principal
 // ---------------------------------------------------------------------------
 export function parseTransaction(text: string): ParseResult | null {
@@ -125,11 +153,15 @@ export function parseTransaction(text: string): ParseResult | null {
   if (!amount) return null;
 
   const categoryName = detectCategory(normalised, type);
+  const isCredit     = type === 'expense' && detectCredit(normalised);
+  const installments = isCredit ? detectInstallments(normalised) : null;
 
   return {
     type,
     amount,
     categoryName,
     description: text.trim(),
+    paymentMethod: isCredit ? 'credit' : 'cash',
+    ...(installments ? { installments } : {}),
   };
 }

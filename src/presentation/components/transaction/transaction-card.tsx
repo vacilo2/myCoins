@@ -44,13 +44,28 @@ export function TransactionCard({
 
       {/* Descrição e categoria */}
       <View style={styles.info}>
-        <Text style={styles.description} numberOfLines={1}>
-          {transaction.description || category?.name || 'Lançamento'}
-        </Text>
+        <View style={styles.descRow}>
+          <Text style={styles.description} numberOfLines={1}>
+            {transaction.description || category?.name || 'Lançamento'}
+          </Text>
+          {transaction.paymentMethod === 'credit' && transaction.installmentTotal && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>
+                {transaction.installmentIndex}/{transaction.installmentTotal}
+              </Text>
+            </View>
+          )}
+        </View>
         <View style={styles.meta}>
           <Text style={styles.categoryName}>{category?.name}</Text>
           <Text style={styles.dot}>·</Text>
           <Text style={styles.date}>{formatDateShort(transaction.date)}</Text>
+          {transaction.paymentMethod === 'credit' && (
+            <>
+              <Text style={styles.dot}>·</Text>
+              <Text style={styles.creditLabel}>Crédito</Text>
+            </>
+          )}
         </View>
       </View>
 
@@ -110,5 +125,25 @@ const styles = StyleSheet.create({
   amount: {
     ...typography.mono.md,
     fontWeight: '600',
+  },
+  descRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  badge: {
+    backgroundColor: colors.accent.muted,
+    borderRadius: 4,
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+  },
+  badgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: colors.accent.primary,
+  },
+  creditLabel: {
+    ...typography.label.sm,
+    color: colors.accent.primary,
   },
 });
