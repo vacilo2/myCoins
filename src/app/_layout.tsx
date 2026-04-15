@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
@@ -20,7 +20,13 @@ export default function RootLayout() {
   const [timedOut, setTimedOut] = useState(false);
 
   const authStatus = useAuthStore((s) => s.status);
+  const authUser   = useAuthStore((s) => s.user);
   const setSession = useAuthStore((s) => s.setSession);
+
+  const loadTransactions = useTransactionStore((s) => s.loadFromCloud);
+  const clearTransactions = useTransactionStore((s) => s.clearStore);
+  const loadCategories    = useCategoryStore((s) => s.loadFromCloud);
+  const clearCategories   = useCategoryStore((s) => s.clearStore);
 
   const router = useRouter();
   const segments = useSegments();
@@ -29,12 +35,28 @@ export default function RootLayout() {
   const authReady = authStatus !== 'loading';
   const isReady = storesReady && authReady;
 
+  // Uma vez que ficou pronto, nunca mais volta a null (evita tela branca durante re-auth)
+  const wasReadyRef = useRef(false);
+  if (isReady) wasReadyRef.current = true;
+  const shouldRender = wasReadyRef.current;
+
   // Inicializa listener de sessão do Supabase
   useEffect(() => {
     return onAuthStateChange((session) => {
       setSession(session);
     });
   }, [setSession]);
+
+  // Carrega dados do usuário ao autenticar, limpa ao sair
+  useEffect(() => {
+    if (authStatus === 'authenticated' && authUser?.id) {
+      loadCategories(authUser.id);
+      loadTransactions(authUser.id);
+    } else if (authStatus === 'unauthenticated') {
+      clearCategories();
+      clearTransactions();
+    }
+  }, [authStatus, authUser?.id]);
 
   // Timeout de segurança para hydration dos stores
   useEffect(() => {
@@ -51,7 +73,8 @@ export default function RootLayout() {
 
   // Guard de autenticação — redireciona após o layout estar montado
   useEffect(() => {
-    if (!isReady) return;
+    if (!shouldRender) return;
+    if (authStatus === 'loading') return; // aguarda resolução do auth
 
     const inAuthGroup = segments[0] === '(auth)';
     const isAuthenticated = authStatus === 'authenticated';
@@ -61,9 +84,9 @@ export default function RootLayout() {
     } else if (isAuthenticated && inAuthGroup) {
       router.replace('/(tabs)');
     }
-  }, [isReady, authStatus, segments, router]);
+  }, [shouldRender, authStatus, segments, router]);
 
-  if (!isReady) return null;
+  if (!shouldRender) return null;
 
   return (
     <GestureHandlerRootView style={styles.root}>
