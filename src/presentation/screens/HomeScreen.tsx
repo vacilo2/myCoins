@@ -9,6 +9,7 @@ import {
   Platform,
   ScrollView,
   Animated,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -162,7 +163,7 @@ function MascotBubble({ isTyping, message }: { isTyping: boolean; message: strin
 
   return (
     <View style={tipStyles.mascotArea}>
-      {/* Avatar do mascote — substitua por <Image> quando tiver o personagem */}
+      {/* Avatar do mascote */}
       <Animated.View
         style={[
           tipStyles.mascotAvatar,
@@ -170,10 +171,10 @@ function MascotBubble({ isTyping, message }: { isTyping: boolean; message: strin
           { transform: [{ translateY: bounceAnim }, { scale: scaleAnim }] },
         ]}
       >
-        <MaterialCommunityIcons
-          name={isTyping ? 'robot-excited-outline' : 'robot-happy-outline'}
-          size={24}
-          color={isTyping ? colors.accent.primary : colors.text.secondary}
+        <Image
+          source={require('../../assets/images/mascot.png')}
+          style={tipStyles.mascotImage}
+          resizeMode="contain"
         />
       </Animated.View>
 
@@ -518,18 +519,24 @@ const tipStyles = StyleSheet.create({
     gap: spacing.md,
   },
   mascotAvatar: {
-    width: 46,
-    height: 46,
-    borderRadius: radius.full,
-    backgroundColor: colors.surface.subtle,
+    width: 58,
+    height: 58,
+    borderRadius: radius.lg,
+    backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1.5,
-    borderColor: colors.border.default,
   },
   mascotAvatarTyping: {
-    backgroundColor: colors.accent.muted,
-    borderColor: colors.accent.primary,
+    // leve brilho ao digitar via sombra
+    shadowColor: colors.accent.primary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  mascotImage: {
+    width: 58,
+    height: 58,
   },
   mascotBubble: {
     flex: 1,
