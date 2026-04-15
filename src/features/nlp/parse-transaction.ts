@@ -117,18 +117,24 @@ function detectCategory(normalised: string, type: 'income' | 'expense'): string 
 // ---------------------------------------------------------------------------
 // Detecção de crédito e parcelas
 // ---------------------------------------------------------------------------
+const CREDIT_WORDS = [
+  'credito', 'cartao', 'cartao de credito',
+  'dividi', 'divid', 'parcelei', 'parcelado', 'parcelo', 'parcelar',
+];
+
 function detectCredit(normalised: string): boolean {
-  return /credito|cartao|cart\u00e3o/.test(normalised);
+  return CREDIT_WORDS.some(w => normalised.includes(w));
 }
 
 function detectInstallments(normalised: string): number | null {
-  // "em 12x", "em 12 vezes", "12x", "parcelado em 12"
   const patterns = [
-    /em\s+(\d+)\s*x\b/,
-    /em\s+(\d+)\s+vezes?/,
-    /\b(\d+)\s*x\b/,
-    /parcelado\s+em\s+(\d+)/,
-    /(\d+)\s+parcelas?/,
+    /dividi\s+(?:de\s+|em\s+)?(\d+)\s*x/,   // "dividi de 10x", "dividi em 10x"
+    /em\s+(\d+)\s*x\b/,                       // "em 12x"
+    /em\s+(\d+)\s+vezes?/,                    // "em 12 vezes"
+    /parcelado\s+em\s+(\d+)/,                 // "parcelado em 12"
+    /parcelei\s+em\s+(\d+)/,                  // "parcelei em 6"
+    /(\d+)\s+parcelas?/,                      // "12 parcelas"
+    /\b(\d+)\s*x\b/,                          // "10x" genérico
   ];
   for (const p of patterns) {
     const m = normalised.match(p);
@@ -153,8 +159,11 @@ export function parseTransaction(text: string): ParseResult | null {
   if (!amount) return null;
 
   const categoryName = detectCategory(normalised, type);
-  const isCredit     = type === 'expense' && detectCredit(normalised);
-  const installments = isCredit ? detectInstallments(normalised) : null;
+
+  // Detecta parcelas independente das palavras de crédito —
+  // se houver padrão de parcelamento numa despesa, já é crédito
+  const installments = type === 'expense' ? detectInstallments(normalised) : null;
+  const isCredit     = type === 'expense' && (detectCredit(normalised) || (installments !== null));
 
   return {
     type,
