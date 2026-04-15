@@ -9,10 +9,31 @@ import { useTransactionStore } from '@store/transaction-store';
 import { ScreenHeader } from '@presentation/layouts/screen-header';
 import { Input } from '@presentation/ui/input';
 import { CURRENCIES } from '@utils/constants';
+import { useAuth } from '@features/auth';
 
 export function SettingsScreen() {
   const preferences = usePreferencesStore((s) => s.preferences);
   const updatePreferences = usePreferencesStore((s) => s.updatePreferences);
+  const { signOut, user } = useAuth();
+
+  function handleSignOut() {
+    const doSignOut = () => signOut();
+
+    if (Platform.OS === 'web') {
+      if (window.confirm('Deseja sair da sua conta?')) doSignOut();
+      return;
+    }
+
+    Alert.alert(
+      'Sair da conta',
+      'Deseja encerrar sua sessão?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Sair', style: 'destructive', onPress: doSignOut },
+      ]
+    );
+  }
+
   function handleClearData() {
     const doReset = () => useTransactionStore.setState({ transactions: [] });
 
@@ -85,6 +106,23 @@ export function SettingsScreen() {
           </View>
         </View>
 
+        {/* Conta */}
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>Conta</Text>
+          <View style={styles.card}>
+            <View style={styles.row}>
+              <MaterialCommunityIcons name="account-outline" size={18} color={colors.text.secondary} />
+              <Text style={[styles.rowLabel, { flex: 1, marginLeft: spacing.sm }]} numberOfLines={1}>
+                {user?.email ?? '—'}
+              </Text>
+            </View>
+          </View>
+          <TouchableOpacity style={styles.signOutBtn} onPress={handleSignOut} activeOpacity={0.8}>
+            <MaterialCommunityIcons name="logout" size={18} color={colors.semantic.expense} />
+            <Text style={styles.dangerText}>Sair da conta</Text>
+          </TouchableOpacity>
+        </View>
+
         {/* Sobre */}
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>Sobre</Text>
@@ -96,7 +134,7 @@ export function SettingsScreen() {
             <View style={styles.divider} />
             <View style={styles.row}>
               <Text style={styles.rowLabel}>Armazenamento</Text>
-              <Text style={styles.rowValue}>Local</Text>
+              <Text style={styles.rowValue}>Nuvem</Text>
             </View>
           </View>
         </View>
@@ -202,6 +240,16 @@ const styles = StyleSheet.create({
     ...typography.label.lg,
     color: colors.text.primary,
     flex: 1,
+  },
+  signOutBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.background.secondary,
+    borderRadius: radius.md,
+    padding: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.semantic.expense + '44',
   },
   dangerBtn: {
     flexDirection: 'row',
