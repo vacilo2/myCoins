@@ -6,26 +6,34 @@ import type { Transaction, Category } from '@/types';
 // ---------------------------------------------------------------------------
 function toDbTransaction(t: Transaction, userId: string) {
   return {
-    id:          t.id,
-    user_id:     userId,
-    type:        t.type,
-    amount:      t.amount,
-    category_id: t.categoryId,
-    description: t.description,
-    date:        t.date,
-    created_at:  t.createdAt,
+    id:                   t.id,
+    user_id:              userId,
+    type:                 t.type,
+    amount:               t.amount,
+    category_id:          t.categoryId,
+    description:          t.description,
+    date:                 t.date,
+    created_at:           t.createdAt,
+    payment_method:       t.paymentMethod ?? 'cash',
+    installment_index:    t.installmentIndex    ?? null,
+    installment_total:    t.installmentTotal    ?? null,
+    installment_group_id: t.installmentGroupId  ?? null,
   };
 }
 
 function fromDbTransaction(row: Record<string, any>): Transaction {
   return {
-    id:          row.id,
-    type:        row.type,
-    amount:      Number(row.amount),
-    categoryId:  row.category_id,
-    description: row.description,
-    date:        row.date,
-    createdAt:   row.created_at,
+    id:                 row.id,
+    type:               row.type,
+    amount:             Number(row.amount),
+    categoryId:         row.category_id,
+    description:        row.description,
+    date:               row.date,
+    createdAt:          row.created_at,
+    paymentMethod:      (row.payment_method ?? 'cash') as 'cash' | 'credit',
+    ...(row.installment_index    != null && { installmentIndex:   row.installment_index }),
+    ...(row.installment_total    != null && { installmentTotal:   row.installment_total }),
+    ...(row.installment_group_id != null && { installmentGroupId: row.installment_group_id }),
   };
 }
 
