@@ -132,62 +132,117 @@ function normStr(s: string): string {
 }
 
 // ---------------------------------------------------------------------------
-// Mascote com animação de digitação
+// Mascote — sprites por estado
 // ---------------------------------------------------------------------------
-function MascotBubble({ isTyping, message }: { isTyping: boolean; message: string }) {
-  const bounceAnim = useRef(new Animated.Value(0)).current;
-  const scaleAnim  = useRef(new Animated.Value(1)).current;
+type MascotState = 'idle' | 'typing' | 'success' | 'error';
+
+const MASCOT_IMAGES: Record<MascotState, number> = {
+  idle:    require('../../../assets/images/mascot-idle.png'),
+  typing:  require('../../../assets/images/mascot-typing.png'),
+  success: require('../../../assets/images/mascot-success.png'),
+  error:   require('../../../assets/images/mascot-error.png'),
+};
+
+const MASCOT_BUBBLE_TEXT: Record<MascotState, string | null> = {
+  idle:    null, // usa a mensagem aleatória
+  typing:  'Entendendo o que você digitou...',
+  success: 'Lançamento registrado!',
+  error:   'Não entendi. Tente outro formato.',
+};
+
+function MascotBubble({ mascotState, idleMessage }: { mascotState: MascotState; idleMessage: string }) {
+  const translateY = useRef(new Animated.Value(0)).current;
+  const scale      = useRef(new Animated.Value(1)).current;
+  const translateX = useRef(new Animated.Value(0)).current;
   const loopRef    = useRef<Animated.CompositeAnimation | null>(null);
 
   useEffect(() => {
-    if (isTyping) {
-      // Animação de "pensando": leve bounce contínuo
+    loopRef.current?.stop();
+    Animated.timing(translateX, { toValue: 0, duration: 100, useNativeDriver: true }).start();
+
+    if (mascotState === 'typing') {
+      // Bounce contínuo para cima/baixo
       loopRef.current = Animated.loop(
         Animated.sequence([
-          Animated.timing(bounceAnim, { toValue: -6, duration: 300, useNativeDriver: true }),
-          Animated.timing(bounceAnim, { toValue: 0,  duration: 300, useNativeDriver: true }),
+          Animated.timing(translateY, { toValue: -6, duration: 300, useNativeDriver: true }),
+          Animated.timing(translateY, { toValue: 0,  duration: 300, useNativeDriver: true }),
         ])
       );
       loopRef.current.start();
-      // Pulso de escala ao iniciar digitação
       Animated.sequence([
-        Animated.timing(scaleAnim, { toValue: 1.15, duration: 150, useNativeDriver: true }),
-        Animated.timing(scaleAnim, { toValue: 1,    duration: 150, useNativeDriver: true }),
+        Animated.timing(scale, { toValue: 1.15, duration: 150, useNativeDriver: true }),
+        Animated.timing(scale, { toValue: 1,    duration: 150, useNativeDriver: true }),
       ]).start();
+
+    } else if (mascotState === 'success') {
+      // Jump + scale up
+      Animated.sequence([
+        Animated.timing(scale,      { toValue: 1.2,  duration: 120, useNativeDriver: true }),
+        Animated.timing(translateY, { toValue: -12,  duration: 180, useNativeDriver: true }),
+        Animated.timing(translateY, { toValue: 0,    duration: 250, useNativeDriver: true }),
+        Animated.timing(scale,      { toValue: 1,    duration: 150, useNativeDriver: true }),
+      ]).start();
+
+    } else if (mascotState === 'error') {
+      // Shake lateral
+      Animated.sequence([
+        Animated.timing(translateX, { toValue:  10, duration: 60, useNativeDriver: true }),
+        Animated.timing(translateX, { toValue: -10, duration: 60, useNativeDriver: true }),
+        Animated.timing(translateX, { toValue:  8,  duration: 60, useNativeDriver: true }),
+        Animated.timing(translateX, { toValue: -8,  duration: 60, useNativeDriver: true }),
+        Animated.timing(translateX, { toValue: 0,   duration: 60, useNativeDriver: true }),
+      ]).start();
+
     } else {
-      loopRef.current?.stop();
-      Animated.timing(bounceAnim, { toValue: 0, duration: 200, useNativeDriver: true }).start();
+      // Idle — float suave
+      Animated.timing(translateY, { toValue: 0, duration: 200, useNativeDriver: true }).start();
+      loopRef.current = Animated.loop(
+        Animated.sequence([
+          Animated.timing(translateY, { toValue: -3, duration: 1200, useNativeDriver: true }),
+          Animated.timing(translateY, { toValue: 0,  duration: 1200, useNativeDriver: true }),
+        ])
+      );
+      loopRef.current.start();
     }
+
     return () => loopRef.current?.stop();
-  }, [isTyping]);
+  }, [mascotState]);
+
+  const isTyping  = mascotState === 'typing';
+  const bubbleMsg = MASCOT_BUBBLE_TEXT[mascotState] ?? idleMessage;
 
   return (
     <View style={tipStyles.mascotArea}>
-      {/* Avatar do mascote */}
       <Animated.View
         style={[
           tipStyles.mascotAvatar,
-          isTyping && tipStyles.mascotAvatarTyping,
-          { transform: [{ translateY: bounceAnim }, { scale: scaleAnim }] },
+          (mascotState === 'typing' || mascotState === 'success') && tipStyles.mascotAvatarActive,
+          { transform: [{ translateY }, { translateX }, { scale }] },
         ]}
       >
         <Image
-          source={require('../../../assets/images/mascot.png')}
+          source={MASCOT_IMAGES[mascotState]}
           style={tipStyles.mascotImage}
           resizeMode="contain"
         />
       </Animated.View>
 
-      {/* Balão de fala */}
-      <View style={[tipStyles.mascotBubble, isTyping && tipStyles.mascotBubbleTyping]}>
-        <Text style={tipStyles.mascotText}>
-          {isTyping ? 'Entendendo o que você digitou...' : message}
+      <View style={[
+        tipStyles.mascotBubble,
+        isTyping  && tipStyles.mascotBubbleTyping,
+        mascotState === 'success' && tipStyles.mascotBubbleSuccess,
+        mascotState === 'error'   && tipStyles.mascotBubbleError,
+      ]}>
+        <Text style={[
+          tipStyles.mascotText,
+          mascotState === 'success' && { color: colors.semantic.income },
+          mascotState === 'error'   && { color: colors.semantic.expense },
+        ]}>
+          {bubbleMsg}
         </Text>
         {isTyping && (
           <View style={tipStyles.dotsRow}>
-            {[0, 1, 2].map(i => (
-              <TypingDot key={i} delay={i * 150} />
-            ))}
+            {[0, 1, 2].map(i => <TypingDot key={i} delay={i * 150} />)}
           </View>
         )}
       </View>
@@ -292,13 +347,25 @@ function TipsSection({
 // Tela principal
 // ---------------------------------------------------------------------------
 export function HomeScreen() {
-  const [inputText, setInputText]     = useState('');
-  const [feedback, setFeedback]       = useState<{ message: string; isError: boolean } | null>(null);
-  const [tipsVisible, setTipsVisible] = useState(true);
-  const feedbackOpacity               = useRef(new Animated.Value(0)).current;
-  const inputRef                      = useRef<TextInput>(null);
+  const [inputText, setInputText]       = useState('');
+  const [feedback, setFeedback]         = useState<{ message: string; isError: boolean } | null>(null);
+  const [tipsVisible, setTipsVisible]   = useState(true);
+  const [mascotState, setMascotState]   = useState<MascotState>('idle');
+  const feedbackOpacity                 = useRef(new Animated.Value(0)).current;
+  const inputRef                        = useRef<TextInput>(null);
+  const mascotTimerRef                  = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const isTyping = inputText.trim().length > 0;
+  // Sincroniza mascote com o input (exceto quando em success/error temporário)
+  useEffect(() => {
+    if (mascotState === 'success' || mascotState === 'error') return;
+    setMascotState(inputText.trim().length > 0 ? 'typing' : 'idle');
+  }, [inputText]);
+
+  const setTemporaryMascotState = useCallback((state: 'success' | 'error') => {
+    if (mascotTimerRef.current) clearTimeout(mascotTimerRef.current);
+    setMascotState(state);
+    mascotTimerRef.current = setTimeout(() => setMascotState('idle'), 2500);
+  }, []);
 
   // Sorteia dicas uma vez por abertura da tela
   const randomTips = useMemo(() => {
@@ -364,6 +431,7 @@ export function HomeScreen() {
     if (!result) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       showFeedback('Não entendi. Tente: "gastei 50 reais com almoço"', true);
+      setTemporaryMascotState('error');
       return;
     }
 
@@ -376,6 +444,7 @@ export function HomeScreen() {
       addInstallments({ totalAmount: result.amount, installments: result.installments, categoryId, description: result.description, firstDate: toISODate(new Date()) }, userId);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setInputText('');
+      setTemporaryMascotState('success');
       const parcelValue = Math.round((result.amount / result.installments) * 100) / 100;
       showFeedback(`${result.installments}x de ${formatCurrency(parcelValue, preferences.currency || 'BRL')} em ${categoryName}`, false);
       return;
@@ -384,11 +453,12 @@ export function HomeScreen() {
     addTransaction({ type: result.type, amount: result.amount, categoryId, description: result.description, date: toISODate(new Date()), paymentMethod: result.paymentMethod }, userId);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     setInputText('');
+    setTemporaryMascotState('success');
 
     const typeLabel    = result.type === 'expense' ? 'Despesa' : 'Receita';
     const creditSuffix = result.paymentMethod === 'credit' ? ' · Crédito' : '';
     showFeedback(`${typeLabel} de ${formatCurrency(result.amount, preferences.currency || 'BRL')} em ${categoryName}${creditSuffix}`, false);
-  }, [inputText, addTransaction, addInstallments, findCategoryId, findCategoryByText, showFeedback, preferences.currency, authUser?.id]);
+  }, [inputText, addTransaction, addInstallments, findCategoryId, findCategoryByText, showFeedback, setTemporaryMascotState, preferences.currency, authUser?.id]);
 
   const handleSelectTip = useCallback((tip: string) => {
     setInputText(tip);
@@ -396,7 +466,8 @@ export function HomeScreen() {
     Haptics.selectionAsync?.();
   }, []);
 
-  const canSubmit = inputText.trim().length > 0 && isStoreReady;
+  const hasText   = inputText.trim().length > 0;
+  const canSubmit = hasText && isStoreReady;
 
   // Mensagem do mascote quando não está digitando
   const mascotIdleMessage = useMemo(() => {
@@ -426,10 +497,10 @@ export function HomeScreen() {
           </View>
 
           {/* 2. Mascote */}
-          <MascotBubble isTyping={isTyping} message={mascotIdleMessage} />
+          <MascotBubble mascotState={mascotState} idleMessage={mascotIdleMessage} />
 
           {/* 3. Input compacto */}
-          <View style={[styles.inputRow, isTyping && styles.inputRowActive]}>
+          <View style={[styles.inputRow, hasText && styles.inputRowActive]}>
             <TextInput
               ref={inputRef}
               value={inputText}
@@ -526,8 +597,7 @@ const tipStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  mascotAvatarTyping: {
-    // leve brilho ao digitar via sombra
+  mascotAvatarActive: {
     shadowColor: colors.accent.primary,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.6,
@@ -551,6 +621,14 @@ const tipStyles = StyleSheet.create({
   mascotBubbleTyping: {
     borderColor: colors.accent.primary + '55',
     backgroundColor: colors.accent.muted,
+  },
+  mascotBubbleSuccess: {
+    borderColor: colors.semantic.income + '55',
+    backgroundColor: colors.semantic.incomeMuted,
+  },
+  mascotBubbleError: {
+    borderColor: colors.semantic.expense + '55',
+    backgroundColor: colors.semantic.expenseMuted,
   },
   mascotText: {
     ...(typography.body.sm as object),
