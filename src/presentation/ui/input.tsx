@@ -46,7 +46,7 @@ export function Input({
       >
         {leftIcon && <View style={styles.leftIcon}>{leftIcon}</View>}
         <TextInput
-          style={[styles.input, leftIcon && styles.inputWithLeft, rightIcon && styles.inputWithRight, style]}
+          style={[styles.input, leftIcon ? styles.inputWithLeft : undefined, rightIcon ? styles.inputWithRight : undefined, style]}
           placeholderTextColor='#87867f'
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}

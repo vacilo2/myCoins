@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx expo:*)",
+      "Bash(echo \"PID: $!\")",
+      "Bash(netstat -ano)",
+      "Bash(taskkill /PID 21508 /F)",
+      "Bash(cmd /c \"taskkill /PID 21508 /F\")",
+      "Bash(cmd /c \"taskkill /IM node.exe /F 2>&1\")",
+      "Bash(CI=1 EXPO_NO_TELEMETRY=1 npx expo start --web --port 8081 --no-dev)",
+      "Bash(echo \"PID=$!\")",
+      "Bash(cmd /c \"taskkill /PID 2224 /F & taskkill /PID 21508 /F\")",
+      "Bash(cmd /c \"taskkill /PID 2224 /F 2>&1 && echo OK || echo FAIL\")",
+      "Bash(powershell -Command \"Stop-Process -Id 2224 -Force -ErrorAction SilentlyContinue; Stop-Process -Id 21508 -Force -ErrorAction SilentlyContinue; Write-Host 'done'\")",
+      "Bash(cat babel.config.js)",
+      "Bash(cat babel.config.ts)",
+      "Bash(magick --version)",
+      "Bash(convert --version)",
+      "Bash(npm install:*)",
+      "Bash(node -e ':*)",
+      "Bash(node remove-shadow.js)",
+      "Bash(rm remove-shadow.js remove-bg.js)",
+      "Bash(ls *.js)",
+      "mcp__claude_ai_Canva__upload-asset-from-url",
+      "mcp__claude_ai_Canva__generate-design",
+      "Bash(node split-sprites.js)",
+      "Bash(node fix-shadows.js)",
+      "Bash(npx tsc *)"
+    ]
+  }
+}

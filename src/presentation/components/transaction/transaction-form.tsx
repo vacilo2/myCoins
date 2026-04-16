@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import type { ViewStyle, TextStyle } from 'react-native';
 import {
   View,
   Text,
@@ -138,7 +139,7 @@ export function TransactionForm({ existing }: TransactionFormProps) {
           {(['expense', 'income'] as TransactionType[]).map((t) => (
             <TouchableOpacity
               key={t}
-              style={[styles.typeBtn, type === t && styles.typeBtnActive(t)]}
+              style={[styles.typeBtn, type === t ? typeBtnActiveStyle(t) : undefined]}
               onPress={() => { setType(t); setCategoryId(''); }}
               activeOpacity={0.8}
             >
@@ -153,7 +154,7 @@ export function TransactionForm({ existing }: TransactionFormProps) {
                     : colors.text.secondary
                 }
               />
-              <Text style={[styles.typeText, type === t && styles.typeTextActive(t)]}>
+              <Text style={[styles.typeText, type === t ? typeTextActiveStyle(t) : undefined]}>
                 {t === 'expense' ? 'Despesa' : 'Receita'}
               </Text>
             </TouchableOpacity>
@@ -198,7 +199,7 @@ export function TransactionForm({ existing }: TransactionFormProps) {
               {(['cash', 'credit'] as const).map((m) => (
                 <TouchableOpacity
                   key={m}
-                  style={[styles.paymentBtn, paymentMethod === m && styles.paymentBtnActive]}
+                  style={[styles.paymentBtn, paymentMethod === m ? styles.paymentBtnActive : undefined]}
                   onPress={() => setPaymentMethod(m)}
                   activeOpacity={0.8}
                 >
@@ -207,7 +208,7 @@ export function TransactionForm({ existing }: TransactionFormProps) {
                     size={16}
                     color={paymentMethod === m ? colors.accent.primary : colors.text.secondary}
                   />
-                  <Text style={[styles.paymentText, paymentMethod === m && styles.paymentTextActive]}>
+                  <Text style={[styles.paymentText, paymentMethod === m ? styles.paymentTextActive : undefined]}>
                     {m === 'cash' ? 'À vista' : 'Crédito'}
                   </Text>
                 </TouchableOpacity>
@@ -222,11 +223,11 @@ export function TransactionForm({ existing }: TransactionFormProps) {
                   {INSTALLMENT_PRESETS.map((n) => (
                     <TouchableOpacity
                       key={n}
-                      style={[styles.presetBtn, installments === n && styles.presetBtnActive]}
+                      style={[styles.presetBtn, installments === n ? styles.presetBtnActive : undefined]}
                       onPress={() => { setInstallments(n); setCustomInstallments(''); }}
                       activeOpacity={0.8}
                     >
-                      <Text style={[styles.presetText, installments === n && styles.presetTextActive]}>
+                      <Text style={[styles.presetText, installments === n ? styles.presetTextActive : undefined]}>
                         {n}x
                       </Text>
                     </TouchableOpacity>
@@ -275,7 +276,7 @@ export function TransactionForm({ existing }: TransactionFormProps) {
             {categories.map((cat) => (
               <TouchableOpacity
                 key={cat.id}
-                style={[styles.catItem, categoryId === cat.id && styles.catItemActive(cat.color)]}
+                style={[styles.catItem, categoryId === cat.id ? catItemActiveStyle(cat.color) : undefined]}
                 onPress={() => setCategoryId(cat.id)}
                 activeOpacity={0.75}
               >
@@ -312,6 +313,17 @@ export function TransactionForm({ existing }: TransactionFormProps) {
   );
 }
 
+// Dynamic style helpers (cannot live inside StyleSheet.create with strict TS)
+function typeBtnActiveStyle(t: TransactionType): ViewStyle {
+  return { backgroundColor: t === 'expense' ? colors.semantic.expenseMuted : colors.semantic.incomeMuted };
+}
+function typeTextActiveStyle(t: TransactionType): TextStyle {
+  return { color: t === 'expense' ? colors.semantic.expense : colors.semantic.income, fontWeight: '600' };
+}
+function catItemActiveStyle(color: string): ViewStyle {
+  return { backgroundColor: color + '22', borderColor: color + '55' };
+}
+
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   content: {
@@ -335,18 +347,10 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     gap: spacing.xs,
   },
-  typeBtnActive: (type: TransactionType) => ({
-    backgroundColor:
-      type === 'expense' ? colors.semantic.expenseMuted : colors.semantic.incomeMuted,
-  }),
   typeText: {
     ...typography.label.lg,
     color: colors.text.secondary,
   },
-  typeTextActive: (type: TransactionType) => ({
-    color: type === 'expense' ? colors.semantic.expense : colors.semantic.income,
-    fontWeight: '600',
-  }),
   amountWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -386,10 +390,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border.default,
   },
-  catItemActive: (color: string) => ({
-    backgroundColor: color + '22',
-    borderColor: color + '55',
-  }),
   catName: {
     ...typography.label.md,
     color: colors.text.secondary,
