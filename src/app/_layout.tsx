@@ -23,10 +23,12 @@ export default function RootLayout() {
   const authUser   = useAuthStore((s) => s.user);
   const setSession = useAuthStore((s) => s.setSession);
 
-  const loadTransactions = useTransactionStore((s) => s.loadFromCloud);
+  const loadTransactions  = useTransactionStore((s) => s.loadFromCloud);
   const clearTransactions = useTransactionStore((s) => s.clearStore);
   const loadCategories    = useCategoryStore((s) => s.loadFromCloud);
   const clearCategories   = useCategoryStore((s) => s.clearStore);
+  const loadPreferences   = usePreferencesStore((s) => s.loadFromCloud);
+  const clearPreferences  = usePreferencesStore((s) => s.clearStore);
 
   const router = useRouter();
   const segments = useSegments();
@@ -52,9 +54,11 @@ export default function RootLayout() {
     if (authStatus === 'authenticated' && authUser?.id) {
       loadCategories(authUser.id);
       loadTransactions(authUser.id);
+      loadPreferences(authUser.id);
     } else if (authStatus === 'unauthenticated') {
       clearCategories();
       clearTransactions();
+      clearPreferences();
     }
   }, [authStatus, authUser?.id]);
 

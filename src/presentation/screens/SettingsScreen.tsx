@@ -15,6 +15,7 @@ export function SettingsScreen() {
   const preferences = usePreferencesStore((s) => s.preferences);
   const updatePreferences = usePreferencesStore((s) => s.updatePreferences);
   const { signOut, user } = useAuth();
+  const userId = user?.id;
 
   function handleSignOut() {
     const doSignOut = () => signOut();
@@ -66,7 +67,7 @@ export function SettingsScreen() {
           <Input
             label="Seu nome"
             value={preferences.name}
-            onChangeText={(v) => updatePreferences({ name: v })}
+            onChangeText={(v) => updatePreferences({ name: v }, userId)}
             placeholder="Como quer ser chamado?"
           />
         </View>
@@ -82,7 +83,7 @@ export function SettingsScreen() {
                   styles.currencyBtn,
                   preferences.currency === c.code && styles.currencyBtnActive,
                 ]}
-                onPress={() => updatePreferences({ currency: c.code })}
+                onPress={() => updatePreferences({ currency: c.code }, userId)}
                 activeOpacity={0.8}
               >
                 <Text
