@@ -5,7 +5,7 @@ import { Transaction } from '@/types';
 import { generateId } from '@utils/id';
 import { isInMonth } from '@utils/date';
 import { STORAGE_KEYS } from '@utils/constants';
-import * as db from '@services/db/db-service';
+import { transactionRepository } from '@repositories/transaction-repository';
 
 interface AddInstallmentsData {
   totalAmount: number;       // valor total da compra
@@ -18,6 +18,7 @@ interface AddInstallmentsData {
 interface TransactionState {
   transactions: Transaction[];
   isHydrated: boolean;
+  syncError: string | null;
 
   addTransaction: (data: Omit<Transaction, 'id' | 'createdAt'>, userId?: string) => void;
   addInstallments: (data: AddInstallmentsData, userId?: string) => void;
@@ -26,6 +27,7 @@ interface TransactionState {
   deleteInstallmentGroup: (groupId: string) => void;
   getByMonth: (year: number, month: number) => Transaction[];
   setHydrated: (value: boolean) => void;
+  clearSyncError: () => void;
 
   // Sync com Supabase
   loadFromCloud: (userId: string) => Promise<void>;
@@ -37,6 +39,7 @@ export const useTransactionStore = create<TransactionState>()(
     (set, get) => ({
       transactions: [],
       isHydrated: false,
+      syncError: null,
 
       addTransaction: (data, userId) => {
         const transaction: Transaction = {
@@ -45,7 +48,11 @@ export const useTransactionStore = create<TransactionState>()(
           createdAt: new Date().toISOString(),
         };
         set((state) => ({ transactions: [transaction, ...state.transactions] }));
-        if (userId) db.upsertTransaction(transaction, userId);
+        if (userId) {
+          transactionRepository.upsert(transaction, userId).then(result => {
+            if (!result.ok) set({ syncError: result.error.message });
+          });
+        }
       },
 
       addInstallments: ({ totalAmount, installments, categoryId, description, firstDate }, userId) => {
@@ -55,7 +62,6 @@ export const useTransactionStore = create<TransactionState>()(
         const [year, month, day] = firstDate.split('-').map(Number);
 
         const newTransactions: Transaction[] = Array.from({ length: installments }, (_, i) => {
-          // Avança mês a mês a partir da data da 1ª parcela
           const d = new Date(year, month - 1 + i, day);
           const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
           return {
@@ -73,12 +79,14 @@ export const useTransactionStore = create<TransactionState>()(
           };
         });
 
-        set((state) => ({
-          transactions: [...newTransactions, ...state.transactions],
-        }));
+        set((state) => ({ transactions: [...newTransactions, ...state.transactions] }));
 
         if (userId) {
-          newTransactions.forEach(t => db.upsertTransaction(t, userId));
+          Promise.all(newTransactions.map(t => transactionRepository.upsert(t, userId)))
+            .then(results => {
+              const failed = results.find(r => !r.ok);
+              if (failed && !failed.ok) set({ syncError: failed.error.message });
+            });
         }
       },
 
@@ -88,7 +96,11 @@ export const useTransactionStore = create<TransactionState>()(
         set((state) => ({
           transactions: state.transactions.filter(t => t.installmentGroupId !== groupId),
         }));
-        toDelete.forEach(t => db.removeTransaction(t.id));
+        Promise.all(toDelete.map(t => transactionRepository.remove(t.id)))
+          .then(results => {
+            const failed = results.find(r => !r.ok);
+            if (failed && !failed.ok) set({ syncError: failed.error.message });
+          });
       },
 
       updateTransaction: (id, data, userId) => {
@@ -99,7 +111,11 @@ export const useTransactionStore = create<TransactionState>()(
         }));
         if (userId) {
           const updated = get().transactions.find(t => t.id === id);
-          if (updated) db.upsertTransaction(updated, userId);
+          if (updated) {
+            transactionRepository.upsert(updated, userId).then(result => {
+              if (!result.ok) set({ syncError: result.error.message });
+            });
+          }
         }
       },
 
@@ -107,7 +123,9 @@ export const useTransactionStore = create<TransactionState>()(
         set((state) => ({
           transactions: state.transactions.filter((t) => t.id !== id),
         }));
-        db.removeTransaction(id);
+        transactionRepository.remove(id).then(result => {
+          if (!result.ok) set({ syncError: result.error.message });
+        });
       },
 
       getByMonth: (year, month) => {
@@ -115,13 +133,18 @@ export const useTransactionStore = create<TransactionState>()(
       },
 
       setHydrated: (value) => set({ isHydrated: value }),
+      clearSyncError: () => set({ syncError: null }),
 
       loadFromCloud: async (userId) => {
-        const cloudTransactions = await db.fetchTransactions(userId);
-        set({ transactions: cloudTransactions, isHydrated: true });
+        const result = await transactionRepository.fetchAll(userId);
+        if (result.ok) {
+          set({ transactions: result.value, isHydrated: true });
+        } else {
+          set({ isHydrated: true, syncError: result.error.message });
+        }
       },
 
-      clearStore: () => set({ transactions: [], isHydrated: false }),
+      clearStore: () => set({ transactions: [], isHydrated: false, syncError: null }),
     }),
     {
       name: STORAGE_KEYS.TRANSACTIONS,

@@ -374,14 +374,24 @@ export function HomeScreen() {
     return result;
   }, []);
 
-  const addTransaction  = useTransactionStore(s => s.addTransaction);
-  const addInstallments = useTransactionStore(s => s.addInstallments);
-  const transactions    = useTransactionStore(s => s.transactions);
-  const authUser        = useAuthStore(s => s.user);
-  const categories      = useCategoryStore(s => s.categories);
-  const getCategoryById = useCategoryStore(s => s.getCategoryById);
-  const isStoreReady    = useCategoryStore(s => s.isHydrated);
-  const preferences     = usePreferencesStore(s => s.preferences);
+  const addTransaction    = useTransactionStore(s => s.addTransaction);
+  const addInstallments   = useTransactionStore(s => s.addInstallments);
+  const transactions      = useTransactionStore(s => s.transactions);
+  const txSyncError       = useTransactionStore(s => s.syncError);
+  const clearTxSyncError  = useTransactionStore(s => s.clearSyncError);
+  const authUser          = useAuthStore(s => s.user);
+  const categories        = useCategoryStore(s => s.categories);
+  const getCategoryById   = useCategoryStore(s => s.getCategoryById);
+  const isStoreReady      = useCategoryStore(s => s.isHydrated);
+  const preferences       = usePreferencesStore(s => s.preferences);
+
+  // Exibe erro de sync como feedback temporário
+  useEffect(() => {
+    if (txSyncError) {
+      showFeedback(txSyncError, true);
+      clearTxSyncError();
+    }
+  }, [txSyncError]);
 
   const recentThree = transactions.slice(0, 3);
 

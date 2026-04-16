@@ -5,11 +5,12 @@ import { Category, TransactionType } from '@/types';
 import { generateId } from '@utils/id';
 import { STORAGE_KEYS } from '@utils/constants';
 import { DEFAULT_CATEGORIES } from '@services/seed/default-categories';
-import * as db from '@services/db/db-service';
+import { categoryRepository } from '@repositories/category-repository';
 
 interface CategoryState {
   categories: Category[];
   isHydrated: boolean;
+  syncError: string | null;
 
   addCategory: (data: Omit<Category, 'id' | 'isDefault'>, userId?: string) => void;
   updateCategory: (id: string, data: Partial<Omit<Category, 'id' | 'isDefault'>>, userId?: string) => void;
@@ -17,6 +18,7 @@ interface CategoryState {
   getCategoryById: (id: string) => Category | undefined;
   getCategoriesByType: (type: TransactionType | 'both') => Category[];
   setHydrated: (value: boolean) => void;
+  clearSyncError: () => void;
 
   // Sync com Supabase
   loadFromCloud: (userId: string) => Promise<void>;
@@ -28,11 +30,16 @@ export const useCategoryStore = create<CategoryState>()(
     (set, get) => ({
       categories: [],
       isHydrated: false,
+      syncError: null,
 
       addCategory: (data, userId) => {
         const category: Category = { ...data, id: generateId(), isDefault: false };
         set((state) => ({ categories: [...state.categories, category] }));
-        if (userId) db.upsertCategory(category, userId);
+        if (userId) {
+          categoryRepository.upsert(category, userId).then(result => {
+            if (!result.ok) set({ syncError: result.error.message });
+          });
+        }
       },
 
       updateCategory: (id, data, userId) => {
@@ -41,7 +48,11 @@ export const useCategoryStore = create<CategoryState>()(
         }));
         if (userId) {
           const updated = get().categories.find(c => c.id === id);
-          if (updated) db.upsertCategory(updated, userId);
+          if (updated) {
+            categoryRepository.upsert(updated, userId).then(result => {
+              if (!result.ok) set({ syncError: result.error.message });
+            });
+          }
         }
       },
 
@@ -49,7 +60,9 @@ export const useCategoryStore = create<CategoryState>()(
         const cat = get().categories.find((c) => c.id === id);
         if (cat?.isDefault) return;
         set((state) => ({ categories: state.categories.filter((c) => c.id !== id) }));
-        db.removeCategory(id);
+        categoryRepository.remove(id).then(result => {
+          if (!result.ok) set({ syncError: result.error.message });
+        });
       },
 
       getCategoryById: (id) => get().categories.find((c) => c.id === id),
@@ -61,20 +74,29 @@ export const useCategoryStore = create<CategoryState>()(
       },
 
       setHydrated: (value) => set({ isHydrated: value }),
+      clearSyncError: () => set({ syncError: null }),
 
       loadFromCloud: async (userId) => {
-        let cloudCategories = await db.fetchCategories(userId);
+        const result = await categoryRepository.fetchAll(userId);
+
+        if (!result.ok) {
+          set({ isHydrated: true, syncError: result.error.message });
+          return;
+        }
+
+        let cloudCategories = result.value;
 
         // Primeiro acesso: semeia as categorias padrão no Supabase
         if (cloudCategories.length === 0) {
-          await db.upsertCategories(DEFAULT_CATEGORIES, userId);
+          const seedResult = await categoryRepository.upsertMany(DEFAULT_CATEGORIES, userId);
+          if (!seedResult.ok) set({ syncError: seedResult.error.message });
           cloudCategories = DEFAULT_CATEGORIES;
         }
 
         set({ categories: cloudCategories, isHydrated: true });
       },
 
-      clearStore: () => set({ categories: [], isHydrated: false }),
+      clearStore: () => set({ categories: [], isHydrated: false, syncError: null }),
     }),
     {
       name: STORAGE_KEYS.CATEGORIES,
