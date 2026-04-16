@@ -14,7 +14,8 @@
       "@types/*": ["src/types/*"],
       "@ui/*": ["src/presentation/ui/*"],
       "@theme/*": ["src/presentation/theme/*"],
-      "@hooks/*": ["src/hooks/*"]
+      "@hooks/*": ["src/hooks/*"],
+      "@repositories/*": ["src/repositories/*"]
     }
   },
   "include": [
