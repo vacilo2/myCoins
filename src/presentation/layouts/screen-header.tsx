@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { colors, typography, spacing } from '@presentation/theme/index';
+import { typography, spacing } from '@presentation/theme';
 
 interface ScreenHeaderProps {
   title: string;

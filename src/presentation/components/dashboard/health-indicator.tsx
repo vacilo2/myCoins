@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { colors, typography, spacing, radius } from '@presentation/theme/index';
+import { typography, spacing, radius } from '@presentation/theme';
 import { HealthStatus } from '@features/financeiro/use-financial-insights';
 
 interface HealthIndicatorProps {

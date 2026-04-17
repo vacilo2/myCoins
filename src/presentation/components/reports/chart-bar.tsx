@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
-import { colors, typography, spacing, radius } from '@presentation/theme/index';
+import { useTheme, typography, spacing, radius, Colors } from '@presentation/theme';
 import { MonthlyChartData } from '@features/relatorios/use-reports';
 import { formatCurrency } from '@utils/currency';
 
@@ -13,6 +13,8 @@ interface ChartBarProps {
 }
 
 export function ChartBar({ data, currency = 'BRL' }: ChartBarProps) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const maxValue = Math.max(...data.flatMap((d) => [d.income, d.expense]), 1);
   const chartHeight = 120;
 
@@ -67,57 +69,61 @@ export function ChartBar({ data, currency = 'BRL' }: ChartBarProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: colors.background.secondary,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
-    gap: spacing.lg,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-  },
-  title: {
-    ...typography.heading.sm,
-    color: colors.text.primary,
-  },
-  chart: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
-  },
-  group: {
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  chartArea: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-  },
-  bar: {
-    width: BAR_WIDTH,
-    borderRadius: radius.xs,
-    minHeight: 2,
-  },
-  label: {
-    ...typography.label.sm,
-    color: colors.text.tertiary,
-  },
-  legend: {
-    flexDirection: 'row',
-    gap: spacing.lg,
-  },
-  legendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: radius.full,
-  },
-  legendText: {
-    ...typography.label.sm,
-    color: colors.text.secondary,
-  },
-});
+
+function createStyles(c: Colors) {
+    return StyleSheet.create({
+    container: {
+      backgroundColor: c.background.secondary,
+      borderRadius: radius.lg,
+      padding: spacing.lg,
+      gap: spacing.lg,
+      borderWidth: 1,
+      borderColor: c.border.default,
+    },
+    title: {
+      ...typography.heading.sm,
+      color: c.text.primary,
+    },
+    chart: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-end',
+    },
+    group: {
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    chartArea: {
+      flexDirection: 'row',
+      alignItems: 'flex-end',
+    },
+    bar: {
+      width: BAR_WIDTH,
+      borderRadius: radius.xs,
+      minHeight: 2,
+    },
+    label: {
+      ...typography.label.sm,
+      color: c.text.tertiary,
+    },
+    legend: {
+      flexDirection: 'row',
+      gap: spacing.lg,
+    },
+    legendItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    dot: {
+      width: 8,
+      height: 8,
+      borderRadius: radius.full,
+    },
+    legendText: {
+      ...typography.label.sm,
+      color: c.text.secondary,
+    },
+  });
+}
+

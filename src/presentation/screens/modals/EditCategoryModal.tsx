@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { colors, typography, spacing, radius } from '@presentation/theme/index';
+import { useTheme, typography, spacing, radius, Colors } from '@presentation/theme';
 import { useCategoryStore } from '@store/category-store';
 import { Input } from '@presentation/ui/input';
 import { Button } from '@presentation/ui/button';
@@ -26,6 +26,8 @@ const ICON_OPTIONS = [
 ];
 
 export function EditCategoryModal() {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const { id } = useLocalSearchParams<{ id: string }>();
   const getCategoryById = useCategoryStore((s) => s.getCategoryById);
   const updateCategory = useCategoryStore((s) => s.updateCategory);
@@ -155,63 +157,67 @@ export function EditCategoryModal() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background.primary },
-  header: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    paddingHorizontal: spacing['2xl'], paddingVertical: spacing.lg,
-  },
-  title: { ...typography.heading.lg, color: colors.text.primary },
-  content: { padding: spacing['2xl'], gap: spacing.xl, paddingBottom: spacing['4xl'] },
-  section: { gap: spacing.sm },
-  sectionLabel: { ...typography.label.md, color: colors.text.secondary },
-  preview: { alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.lg },
-  previewIcon: { width: 64, height: 64, borderRadius: radius.xl, alignItems: 'center', justifyContent: 'center' },
-  previewName: { ...typography.heading.md },
-  colorGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  colorDot: { width: 32, height: 32, borderRadius: radius.full },
-  colorDotActive: { borderWidth: 3, borderColor: colors.white },
-  iconGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  iconBtn: {
-    width: 44, height: 44, borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center',
-    backgroundColor: colors.background.tertiary, borderWidth: 1, borderColor: colors.border.default,
-  },
-  iconBtnActive: { borderColor: colors.accent.primary + '66', backgroundColor: colors.accent.muted },
-  iconBtnAdd: {
-    width: 44, height: 44, borderRadius: radius.sm,
-    alignItems: 'center', justifyContent: 'center',
-    backgroundColor: colors.accent.muted,
-    borderWidth: 1, borderColor: colors.accent.primary + '55',
-    borderStyle: 'dashed',
-  },
-  emojiText: { fontSize: 22, textAlign: 'center' },
-  emojiOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' },
-  emojiSheet: {
-    backgroundColor: colors.background.secondary,
-    borderTopLeftRadius: radius.xl,
-    borderTopRightRadius: radius.xl,
-    padding: spacing['2xl'],
-    gap: spacing.lg,
-    paddingBottom: 40,
-  },
-  emojiSheetTitle: { ...typography.heading.md, color: colors.text.primary, textAlign: 'center' },
-  emojiSheetSub: { ...typography.body.sm, color: colors.text.tertiary, textAlign: 'center' },
-  emojiInput: {
-    fontSize: 48, textAlign: 'center',
-    backgroundColor: colors.background.tertiary,
-    borderRadius: radius.md, borderWidth: 1,
-    borderColor: colors.border.default,
-    paddingVertical: spacing.lg,
-    minHeight: 90,
-    color: colors.text.primary,
-  },
-  emojiActions: { alignItems: 'center' },
-  emojiConfirm: {
-    backgroundColor: colors.accent.primary,
-    borderRadius: radius.md,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing['2xl'],
-  },
-  emojiConfirmText: { ...typography.label.lg, color: colors.text.inverse, fontWeight: '700' },
-  error: { ...typography.body.sm, color: colors.semantic.expense, textAlign: 'center' },
-});
+
+function createStyles(c: Colors) {
+    return StyleSheet.create({
+    safe: { flex: 1, backgroundColor: c.background.primary },
+    header: {
+      flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+      paddingHorizontal: spacing['2xl'], paddingVertical: spacing.lg,
+    },
+    title: { ...typography.heading.lg, color: c.text.primary },
+    content: { padding: spacing['2xl'], gap: spacing.xl, paddingBottom: spacing['4xl'] },
+    section: { gap: spacing.sm },
+    sectionLabel: { ...typography.label.md, color: c.text.secondary },
+    preview: { alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.lg },
+    previewIcon: { width: 64, height: 64, borderRadius: radius.xl, alignItems: 'center', justifyContent: 'center' },
+    previewName: { ...typography.heading.md },
+    colorGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+    colorDot: { width: 32, height: 32, borderRadius: radius.full },
+    colorDotActive: { borderWidth: 3, borderColor: c.white },
+    iconGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+    iconBtn: {
+      width: 44, height: 44, borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center',
+      backgroundColor: c.background.tertiary, borderWidth: 1, borderColor: c.border.default,
+    },
+    iconBtnActive: { borderColor: c.accent.primary + '66', backgroundColor: c.accent.muted },
+    iconBtnAdd: {
+      width: 44, height: 44, borderRadius: radius.sm,
+      alignItems: 'center', justifyContent: 'center',
+      backgroundColor: c.accent.muted,
+      borderWidth: 1, borderColor: c.accent.primary + '55',
+      borderStyle: 'dashed',
+    },
+    emojiText: { fontSize: 22, textAlign: 'center' },
+    emojiOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' },
+    emojiSheet: {
+      backgroundColor: c.background.secondary,
+      borderTopLeftRadius: radius.xl,
+      borderTopRightRadius: radius.xl,
+      padding: spacing['2xl'],
+      gap: spacing.lg,
+      paddingBottom: 40,
+    },
+    emojiSheetTitle: { ...typography.heading.md, color: c.text.primary, textAlign: 'center' },
+    emojiSheetSub: { ...typography.body.sm, color: c.text.tertiary, textAlign: 'center' },
+    emojiInput: {
+      fontSize: 48, textAlign: 'center',
+      backgroundColor: c.background.tertiary,
+      borderRadius: radius.md, borderWidth: 1,
+      borderColor: c.border.default,
+      paddingVertical: spacing.lg,
+      minHeight: 90,
+      color: c.text.primary,
+    },
+    emojiActions: { alignItems: 'center' },
+    emojiConfirm: {
+      backgroundColor: c.accent.primary,
+      borderRadius: radius.md,
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing['2xl'],
+    },
+    emojiConfirmText: { ...typography.label.lg, color: c.text.inverse, fontWeight: '700' },
+    error: { ...typography.body.sm, color: c.semantic.expense, textAlign: 'center' },
+  });
+}
+

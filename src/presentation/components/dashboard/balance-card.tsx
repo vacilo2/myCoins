@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Platform } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { colors, typography, spacing, radius } from '@presentation/theme/index';
+import { typography, spacing, radius } from '@presentation/theme';
 import { formatCurrency } from '@utils/currency';
 import { formatMonthYear } from '@utils/date';
 

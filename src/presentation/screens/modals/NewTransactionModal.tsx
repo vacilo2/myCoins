@@ -3,10 +3,12 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { colors, typography, spacing } from '@presentation/theme/index';
+import { useTheme, typography, spacing, Colors } from '@presentation/theme';
 import { TransactionForm } from '@presentation/components/transaction/transaction-form';
 
 export function NewTransactionModal() {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.header}>
@@ -20,17 +22,21 @@ export function NewTransactionModal() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background.primary },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: spacing['2xl'],
-    paddingVertical: spacing.lg,
-  },
-  title: {
-    ...typography.heading.lg,
-    color: colors.text.primary,
-  },
-});
+
+function createStyles(c: Colors) {
+    return StyleSheet.create({
+    safe: { flex: 1, backgroundColor: c.background.primary },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: spacing['2xl'],
+      paddingVertical: spacing.lg,
+    },
+    title: {
+      ...typography.heading.lg,
+      color: c.text.primary,
+    },
+  });
+}
+

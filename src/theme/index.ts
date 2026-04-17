@@ -13,3 +13,5 @@ export const theme = {
 export type Theme = typeof theme;
 
 export { colors, typography, spacing, radius };
+export { useTheme } from './ThemeContext';
+export type { Colors } from './ThemeContext';

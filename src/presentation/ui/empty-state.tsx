@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { colors, typography, spacing } from '@presentation/theme/index';
+import { typography, spacing } from '@presentation/theme';
 import { Button } from './button';
 
 interface EmptyStateProps {

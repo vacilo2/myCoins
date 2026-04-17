@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { colors, typography, spacing, radius } from '@presentation/theme/index';
+import { useTheme, typography, spacing, radius, Colors } from '@presentation/theme';
 import { formatCurrency } from '@utils/currency';
 import { ParsedRow } from '@services/csv-import';
 import { ParseErrorBadge } from './ParseErrorBadge';
@@ -14,6 +14,8 @@ interface ReviewRowCardProps {
 }
 
 export function ReviewRowCard({ row, selected, onToggle, currency }: ReviewRowCardProps) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const hasError = !!row.error;
   const isExpense = row.type === 'expense';
   const amountColor = isExpense ? colors.semantic.expense : colors.semantic.income;
@@ -62,82 +64,88 @@ export function ReviewRowCard({ row, selected, onToggle, currency }: ReviewRowCa
 }
 
 function formatDisplayDate(iso: string): string {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [y, m, d] = iso.split('-');
   return `${d}/${m}/${y}`;
 }
 
-const styles = StyleSheet.create({
-  card: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: spacing.md,
-    backgroundColor: colors.background.secondary,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-  },
-  cardError: {
-    opacity: 0.6,
-    borderColor: colors.semantic.expense + '44',
-  },
-  cardSelected: {
-    borderColor: colors.accent.primary + '66',
-    backgroundColor: colors.accent.muted,
-  },
-  checkbox: {
-    width: 22,
-    height: 22,
-    borderRadius: radius.sm,
-    borderWidth: 2,
-    borderColor: colors.border.default,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 2,
-    flexShrink: 0,
-  },
-  checkboxActive: {
-    backgroundColor: colors.accent.primary,
-    borderColor: colors.accent.primary,
-  },
-  checkboxDisabled: {
-    borderColor: colors.semantic.expense + '66',
-    backgroundColor: colors.semantic.expenseMuted,
-  },
-  content: { flex: 1, gap: spacing.xs },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: spacing.sm,
-  },
-  description: {
-    ...typography.body.md,
-    color: colors.text.primary,
-    flex: 1,
-  },
-  textMuted: { color: colors.text.tertiary },
-  amount: {
-    ...typography.label.lg,
-    fontWeight: '700',
-    flexShrink: 0,
-  },
-  meta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  date: {
-    ...typography.label.sm,
-    color: colors.text.tertiary,
-  },
-  typeBadge: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
-    borderRadius: radius.sm,
-  },
-  typeText: {
-    ...typography.label.sm,
-    fontWeight: '600',
-  },
-});
+
+function createStyles(c: Colors) {
+    return StyleSheet.create({
+    card: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: spacing.md,
+      backgroundColor: c.background.secondary,
+      borderRadius: radius.md,
+      padding: spacing.md,
+      borderWidth: 1,
+      borderColor: c.border.default,
+    },
+    cardError: {
+      opacity: 0.6,
+      borderColor: c.semantic.expense + '44',
+    },
+    cardSelected: {
+      borderColor: c.accent.primary + '66',
+      backgroundColor: c.accent.muted,
+    },
+    checkbox: {
+      width: 22,
+      height: 22,
+      borderRadius: radius.sm,
+      borderWidth: 2,
+      borderColor: c.border.default,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: 2,
+      flexShrink: 0,
+    },
+    checkboxActive: {
+      backgroundColor: c.accent.primary,
+      borderColor: c.accent.primary,
+    },
+    checkboxDisabled: {
+      borderColor: c.semantic.expense + '66',
+      backgroundColor: c.semantic.expenseMuted,
+    },
+    content: { flex: 1, gap: spacing.xs },
+    row: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      gap: spacing.sm,
+    },
+    description: {
+      ...typography.body.md,
+      color: c.text.primary,
+      flex: 1,
+    },
+    textMuted: { color: c.text.tertiary },
+    amount: {
+      ...typography.label.lg,
+      fontWeight: '700',
+      flexShrink: 0,
+    },
+    meta: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    date: {
+      ...typography.label.sm,
+      color: c.text.tertiary,
+    },
+    typeBadge: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 2,
+      borderRadius: radius.sm,
+    },
+    typeText: {
+      ...typography.label.sm,
+      fontWeight: '600',
+    },
+  });
+}
+

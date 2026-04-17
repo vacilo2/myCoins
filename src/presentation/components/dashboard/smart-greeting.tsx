@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, StyleSheet } from 'react-native';
-import { colors, typography } from '@presentation/theme/index';
+import { useTheme, typography, Colors } from '@presentation/theme';
 import { HealthStatus } from '@features/financeiro/use-financial-insights';
 
 interface SmartGreetingProps {
@@ -9,6 +9,8 @@ interface SmartGreetingProps {
 }
 
 function buildGreeting(name: string, status: HealthStatus): { main: string; sub: string } {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const display = name?.trim() ? name.split(' ')[0] : '';
   const prefix = display ? `Olá, ${display}` : 'Olá';
 
@@ -25,6 +27,8 @@ function buildGreeting(name: string, status: HealthStatus): { main: string; sub:
 }
 
 export function SmartGreeting({ name, healthStatus }: SmartGreetingProps) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const { main, sub } = buildGreeting(name, healthStatus);
 
   const subColor =
@@ -42,7 +46,11 @@ export function SmartGreeting({ name, healthStatus }: SmartGreetingProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  main: { ...typography.heading.xl, color: colors.text.primary },
-  sub: { ...typography.body.md, marginTop: 2 },
-});
+
+function createStyles(c: Colors) {
+    return StyleSheet.create({
+    main: { ...typography.heading.xl, color: c.text.primary },
+    sub: { ...typography.body.md, marginTop: 2 },
+  });
+}
+

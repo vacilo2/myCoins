@@ -9,7 +9,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { colors, typography, spacing } from '@presentation/theme/index';
+import { useTheme, typography, spacing, Colors } from '@presentation/theme';
 import { BalanceCard } from '@presentation/components/dashboard/balance-card';
 import { TopCategories } from '@presentation/components/dashboard/top-categories';
 import { TransactionCard } from '@presentation/components/transaction/transaction-card';
@@ -20,6 +20,8 @@ import { ProfileProgressCard } from '@presentation/components/dashboard/profile-
 import { useDashboard } from '@features/dashboard/use-dashboard';
 
 export function DashboardScreen() {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const {
     currentDate,
     preferences,
@@ -138,70 +140,74 @@ export function DashboardScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  scroll: { flex: 1 },
-  content: {
-    padding: spacing['2xl'],
-    gap: spacing['2xl'],
-    paddingBottom: 100,
-  },
-  header: {
-    gap: 2,
-  },
-  monthNav: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xl,
-  },
-  monthText: {
-    ...typography.label.lg,
-    color: colors.text.primary,
-    textTransform: 'capitalize',
-    minWidth: 140,
-    textAlign: 'center',
-  },
-  balanceBlock: {
-    gap: spacing.sm,
-  },
-  healthRow: {
-    flexDirection: 'row',
-    paddingHorizontal: spacing.xs,
-  },
-  insightSection: {
-    marginHorizontal: -spacing['2xl'],
-  },
-  section: {
-    gap: spacing.md,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  sectionTitle: {
-    ...typography.heading.sm,
-    color: colors.text.primary,
-  },
-  seeAll: {
-    ...typography.label.md,
-    color: colors.accent.primary,
-  },
-  list: {
-    gap: spacing.sm,
-  },
-  emptyHint: {
-    alignItems: 'center',
-    paddingVertical: spacing['3xl'],
-    gap: spacing.xs,
-  },
-  emptyText: {
-    ...typography.body.md,
-    color: colors.text.tertiary,
-    textAlign: 'center',
-  },
-});
+
+function createStyles(c: Colors) {
+    return StyleSheet.create({
+    safe: {
+      flex: 1,
+      backgroundColor: c.background.primary,
+    },
+    scroll: { flex: 1 },
+    content: {
+      padding: spacing['2xl'],
+      gap: spacing['2xl'],
+      paddingBottom: 100,
+    },
+    header: {
+      gap: 2,
+    },
+    monthNav: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.xl,
+    },
+    monthText: {
+      ...typography.label.lg,
+      color: c.text.primary,
+      textTransform: 'capitalize',
+      minWidth: 140,
+      textAlign: 'center',
+    },
+    balanceBlock: {
+      gap: spacing.sm,
+    },
+    healthRow: {
+      flexDirection: 'row',
+      paddingHorizontal: spacing.xs,
+    },
+    insightSection: {
+      marginHorizontal: -spacing['2xl'],
+    },
+    section: {
+      gap: spacing.md,
+    },
+    sectionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    sectionTitle: {
+      ...typography.heading.sm,
+      color: c.text.primary,
+    },
+    seeAll: {
+      ...typography.label.md,
+      color: c.accent.primary,
+    },
+    list: {
+      gap: spacing.sm,
+    },
+    emptyHint: {
+      alignItems: 'center',
+      paddingVertical: spacing['3xl'],
+      gap: spacing.xs,
+    },
+    emptyText: {
+      ...typography.body.md,
+      color: c.text.tertiary,
+      textAlign: 'center',
+    },
+  });
+}
+

@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Platform }
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { colors, typography, spacing, radius } from '@presentation/theme/index';
+import { useTheme, typography, spacing, radius, Colors } from '@presentation/theme';
 import { usePreferencesStore } from '@store/preferences-store';
 import { useTransactionStore } from '@store/transaction-store';
 import { ScreenHeader } from '@presentation/layouts/screen-header';
@@ -12,6 +12,8 @@ import { CURRENCIES } from '@utils/constants';
 import { useAuth } from '@features/auth';
 
 export function SettingsScreen() {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const preferences = usePreferencesStore((s) => s.preferences);
   const updatePreferences = usePreferencesStore((s) => s.updatePreferences);
   const { signOut, user } = useAuth();
@@ -70,6 +72,30 @@ export function SettingsScreen() {
             onChangeText={(v) => updatePreferences({ name: v }, userId)}
             placeholder="Como quer ser chamado?"
           />
+        </View>
+
+        {/* Aparência */}
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>Aparência</Text>
+          <View style={styles.card}>
+            <TouchableOpacity
+              style={styles.themeRow}
+              onPress={() => updatePreferences({ theme: preferences.theme === 'dark' ? 'light' : 'dark' }, userId)}
+              activeOpacity={0.8}
+            >
+              <MaterialCommunityIcons
+                name={preferences.theme === 'dark' ? 'weather-night' : 'white-balance-sunny'}
+                size={20}
+                color={colors.accent.primary}
+              />
+              <Text style={styles.themeLabel}>
+                {preferences.theme === 'dark' ? 'Modo escuro' : 'Modo claro'}
+              </Text>
+              <View style={[styles.toggle, preferences.theme !== 'dark' && styles.toggleActive]}>
+                <View style={[styles.toggleThumb, preferences.theme !== 'dark' && styles.toggleThumbActive]} />
+              </View>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Moeda */}
@@ -176,94 +202,130 @@ export function SettingsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background.primary },
-  content: { padding: spacing['2xl'], gap: spacing['3xl'], paddingBottom: 100 },
-  section: { gap: spacing.md },
-  sectionLabel: {
-    ...typography.label.md,
-    color: colors.text.secondary,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  currencyRow: { flexDirection: 'row', gap: spacing.sm },
-  currencyBtn: {
-    flex: 1,
-    alignItems: 'center',
-    backgroundColor: colors.background.tertiary,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    gap: spacing.xs,
-  },
-  currencyBtnActive: {
-    borderColor: colors.accent.primary,
-    backgroundColor: colors.accent.muted,
-  },
-  currencySymbol: {
-    ...typography.heading.md,
-    color: colors.text.secondary,
-  },
-  currencySymbolActive: { color: colors.accent.primary },
-  currencyCode: {
-    ...typography.label.sm,
-    color: colors.text.tertiary,
-  },
-  currencyCodeActive: { color: colors.accent.primary },
-  card: {
-    backgroundColor: colors.background.secondary,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    overflow: 'hidden',
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: spacing.lg,
-  },
-  rowLabel: { ...typography.body.md, color: colors.text.primary },
-  rowValue: { ...typography.body.md, color: colors.text.secondary },
-  divider: { height: 1, backgroundColor: colors.border.subtle },
-  actionBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    backgroundColor: colors.background.secondary,
-    borderRadius: radius.md,
-    padding: spacing.lg,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-  },
-  actionText: {
-    ...typography.label.lg,
-    color: colors.text.primary,
-    flex: 1,
-  },
-  signOutBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    backgroundColor: colors.background.secondary,
-    borderRadius: radius.md,
-    padding: spacing.lg,
-    borderWidth: 1,
-    borderColor: colors.semantic.expense + '44',
-  },
-  dangerBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    backgroundColor: colors.semantic.expenseMuted,
-    borderRadius: radius.md,
-    padding: spacing.lg,
-    borderWidth: 1,
-    borderColor: colors.semantic.expense + '44',
-  },
-  dangerText: {
-    ...typography.label.lg,
-    color: colors.semantic.expense,
-  },
-});
+
+function createStyles(c: Colors) {
+    return StyleSheet.create({
+    safe: { flex: 1, backgroundColor: c.background.primary },
+    content: { padding: spacing['2xl'], gap: spacing['3xl'], paddingBottom: 100 },
+    section: { gap: spacing.md },
+    sectionLabel: {
+      ...typography.label.md,
+      color: c.text.secondary,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+    },
+    currencyRow: { flexDirection: 'row', gap: spacing.sm },
+    currencyBtn: {
+      flex: 1,
+      alignItems: 'center',
+      backgroundColor: c.background.tertiary,
+      borderRadius: radius.md,
+      padding: spacing.md,
+      borderWidth: 1,
+      borderColor: c.border.default,
+      gap: spacing.xs,
+    },
+    currencyBtnActive: {
+      borderColor: c.accent.primary,
+      backgroundColor: c.accent.muted,
+    },
+    currencySymbol: {
+      ...typography.heading.md,
+      color: c.text.secondary,
+    },
+    currencySymbolActive: { color: c.accent.primary },
+    currencyCode: {
+      ...typography.label.sm,
+      color: c.text.tertiary,
+    },
+    currencyCodeActive: { color: c.accent.primary },
+    card: {
+      backgroundColor: c.background.secondary,
+      borderRadius: radius.lg,
+      borderWidth: 1,
+      borderColor: c.border.default,
+      overflow: 'hidden',
+    },
+    row: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: spacing.lg,
+    },
+    rowLabel: { ...typography.body.md, color: c.text.primary },
+    rowValue: { ...typography.body.md, color: c.text.secondary },
+    divider: { height: 1, backgroundColor: c.border.subtle },
+    actionBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      backgroundColor: c.background.secondary,
+      borderRadius: radius.md,
+      padding: spacing.lg,
+      borderWidth: 1,
+      borderColor: c.border.default,
+    },
+    actionText: {
+      ...typography.label.lg,
+      color: c.text.primary,
+      flex: 1,
+    },
+    signOutBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      backgroundColor: c.background.secondary,
+      borderRadius: radius.md,
+      padding: spacing.lg,
+      borderWidth: 1,
+      borderColor: c.semantic.expense + '44',
+    },
+    dangerBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      backgroundColor: c.semantic.expenseMuted,
+      borderRadius: radius.md,
+      padding: spacing.lg,
+      borderWidth: 1,
+      borderColor: c.semantic.expense + '44',
+    },
+    dangerText: {
+      ...typography.label.lg,
+      color: c.semantic.expense,
+    },
+    themeRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      padding: spacing.lg,
+    },
+    themeLabel: {
+      ...typography.label.lg,
+      color: c.text.primary,
+      flex: 1,
+    },
+    toggle: {
+      width: 46,
+      height: 26,
+      borderRadius: radius.full,
+      backgroundColor: c.border.strong,
+      justifyContent: 'center',
+      paddingHorizontal: 3,
+    },
+    toggleActive: {
+      backgroundColor: c.accent.primary,
+    },
+    toggleThumb: {
+      width: 20,
+      height: 20,
+      borderRadius: radius.full,
+      backgroundColor: c.white,
+      alignSelf: 'flex-start',
+    },
+    toggleThumbActive: {
+      alignSelf: 'flex-end',
+    },
+  });
+}
+

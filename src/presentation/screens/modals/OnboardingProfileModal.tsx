@@ -5,12 +5,14 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { colors, typography, spacing, radius } from '@presentation/theme/index';
+import { useTheme, typography, spacing, radius, Colors } from '@presentation/theme';
 import { usePreferencesStore } from '@store/preferences-store';
 import { Button } from '@presentation/ui/button';
 import { parseCurrencyInput } from '@utils/currency';
 
 export function OnboardingProfileModal() {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const preferences = usePreferencesStore((s) => s.preferences);
   const updatePreferences = usePreferencesStore((s) => s.updatePreferences);
 
@@ -124,31 +126,35 @@ export function OnboardingProfileModal() {
   );
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: colors.background.primary },
-  content: { padding: spacing['2xl'], gap: spacing.xl, paddingBottom: spacing['4xl'] },
-  header: { alignItems: 'center', gap: spacing.md, paddingVertical: spacing.xl },
-  emoji: { fontSize: 48 },
-  title: { ...typography.heading.xl, color: colors.text.primary, textAlign: 'center' },
-  subtitle: { ...typography.body.md, color: colors.text.secondary, textAlign: 'center', lineHeight: 22 },
-  field: { gap: spacing.sm },
-  label: { ...typography.label.lg, color: colors.text.primary },
-  optional: { ...typography.label.md, color: colors.text.tertiary },
-  hint: { ...typography.body.sm, color: colors.text.tertiary },
-  inputRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  prefix: { ...typography.heading.md, color: colors.text.secondary },
-  input: {
-    ...typography.body.lg,
-    color: colors.text.primary,
-    backgroundColor: colors.background.tertiary,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    minHeight: 52,
-  },
-  inputFlex: { flex: 1 },
-  actions: { gap: spacing.md, marginTop: spacing.md },
-  skipText: { ...typography.label.md, color: colors.text.tertiary, textAlign: 'center', paddingVertical: spacing.sm },
-});
+
+function createStyles(c: Colors) {
+    return StyleSheet.create({
+    flex: { flex: 1, backgroundColor: c.background.primary },
+    content: { padding: spacing['2xl'], gap: spacing.xl, paddingBottom: spacing['4xl'] },
+    header: { alignItems: 'center', gap: spacing.md, paddingVertical: spacing.xl },
+    emoji: { fontSize: 48 },
+    title: { ...typography.heading.xl, color: c.text.primary, textAlign: 'center' },
+    subtitle: { ...typography.body.md, color: c.text.secondary, textAlign: 'center', lineHeight: 22 },
+    field: { gap: spacing.sm },
+    label: { ...typography.label.lg, color: c.text.primary },
+    optional: { ...typography.label.md, color: c.text.tertiary },
+    hint: { ...typography.body.sm, color: c.text.tertiary },
+    inputRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    prefix: { ...typography.heading.md, color: c.text.secondary },
+    input: {
+      ...typography.body.lg,
+      color: c.text.primary,
+      backgroundColor: c.background.tertiary,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: c.border.default,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      minHeight: 52,
+    },
+    inputFlex: { flex: 1 },
+    actions: { gap: spacing.md, marginTop: spacing.md },
+    skipText: { ...typography.label.md, color: c.text.tertiary, textAlign: 'center', paddingVertical: spacing.sm },
+  });
+}
+

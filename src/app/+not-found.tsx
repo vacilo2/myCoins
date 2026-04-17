@@ -1,8 +1,10 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { Link } from 'expo-router';
-import { colors, typography, spacing } from '@theme/index';
+import { useTheme, typography, spacing, Colors } from '@theme';
 
 export default function NotFound() {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Tela não encontrada</Text>
@@ -13,21 +15,25 @@ export default function NotFound() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing['2xl'],
-    gap: spacing.lg,
-  },
-  title: {
-    ...typography.heading.lg,
-    color: colors.text.primary,
-  },
-  link: {
-    ...typography.body.md,
-    color: colors.accent.primary,
-  },
-});
+
+function createStyles(c: Colors) {
+    return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: c.background.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: spacing['2xl'],
+      gap: spacing.lg,
+    },
+    title: {
+      ...typography.heading.lg,
+      color: c.text.primary,
+    },
+    link: {
+      ...typography.body.md,
+      color: c.accent.primary,
+    },
+  });
+}
+

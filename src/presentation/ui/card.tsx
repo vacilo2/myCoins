@@ -6,7 +6,7 @@ import {
   ViewStyle,
   StyleProp,
 } from 'react-native';
-import { colors, spacing, radius } from '@presentation/theme/index';
+import { spacing, radius } from '@presentation/theme';
 
 type CardVariant = 'elevated' | 'outlined' | 'flat';
 

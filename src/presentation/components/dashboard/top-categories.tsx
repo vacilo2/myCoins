@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { colors, typography, spacing, radius } from '@presentation/theme/index';
+import { useTheme, typography, spacing, radius, Colors } from '@presentation/theme';
 import { CategorySummary } from '@/types';
 import { formatCurrency } from '@utils/currency';
 
@@ -11,6 +11,8 @@ interface TopCategoriesProps {
 }
 
 export function TopCategories({ categories, currency = 'BRL' }: TopCategoriesProps) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   if (categories.length === 0) return null;
 
   return (
@@ -51,62 +53,66 @@ export function TopCategories({ categories, currency = 'BRL' }: TopCategoriesPro
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    gap: spacing.md,
-  },
-  title: {
-    ...typography.heading.sm,
-    color: colors.text.primary,
-  },
-  list: {
-    gap: spacing.sm,
-  },
-  item: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.background.secondary,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    gap: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-  },
-  iconWrapper: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  info: {
-    flex: 1,
-    gap: 6,
-  },
-  name: {
-    ...typography.body.md,
-    color: colors.text.primary,
-  },
-  barWrapper: {
-    height: 3,
-    backgroundColor: colors.surface.subtle,
-    borderRadius: radius.full,
-    overflow: 'hidden',
-  },
-  bar: {
-    height: 3,
-    borderRadius: radius.full,
-  },
-  right: {
-    alignItems: 'flex-end',
-  },
-  amount: {
-    ...typography.mono.sm,
-    color: colors.text.primary,
-  },
-  percentage: {
-    ...typography.label.sm,
-    color: colors.text.tertiary,
-    marginTop: 2,
-  },
-});
+
+function createStyles(c: Colors) {
+    return StyleSheet.create({
+    container: {
+      gap: spacing.md,
+    },
+    title: {
+      ...typography.heading.sm,
+      color: c.text.primary,
+    },
+    list: {
+      gap: spacing.sm,
+    },
+    item: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: c.background.secondary,
+      borderRadius: radius.md,
+      padding: spacing.md,
+      gap: spacing.md,
+      borderWidth: 1,
+      borderColor: c.border.subtle,
+    },
+    iconWrapper: {
+      width: 36,
+      height: 36,
+      borderRadius: radius.sm,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    info: {
+      flex: 1,
+      gap: 6,
+    },
+    name: {
+      ...typography.body.md,
+      color: c.text.primary,
+    },
+    barWrapper: {
+      height: 3,
+      backgroundColor: c.surface.subtle,
+      borderRadius: radius.full,
+      overflow: 'hidden',
+    },
+    bar: {
+      height: 3,
+      borderRadius: radius.full,
+    },
+    right: {
+      alignItems: 'flex-end',
+    },
+    amount: {
+      ...typography.mono.sm,
+      color: c.text.primary,
+    },
+    percentage: {
+      ...typography.label.sm,
+      color: c.text.tertiary,
+      marginTop: 2,
+    },
+  });
+}
+

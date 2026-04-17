@@ -14,7 +14,7 @@ import {
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
-import { colors, typography, spacing, radius } from '@presentation/theme/index';
+import { useTheme, typography, spacing, radius, Colors } from '@presentation/theme';
 import { TransactionType, Transaction } from '@/types';
 import { useTransactionStore } from '@store/transaction-store';
 import { useCategoryStore } from '@store/category-store';
@@ -36,6 +36,8 @@ interface TransactionFormProps {
 const INSTALLMENT_PRESETS = [2, 3, 6, 12, 18, 24];
 
 export function TransactionForm({ existing }: TransactionFormProps) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const addTransaction    = useTransactionStore((s) => s.addTransaction);
   const addInstallments   = useTransactionStore((s) => s.addInstallments);
   const updateTransaction = useTransactionStore((s) => s.updateTransaction);
@@ -315,190 +317,200 @@ export function TransactionForm({ existing }: TransactionFormProps) {
 
 // Dynamic style helpers (cannot live inside StyleSheet.create with strict TS)
 function typeBtnActiveStyle(t: TransactionType): ViewStyle {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   return { backgroundColor: t === 'expense' ? colors.semantic.expenseMuted : colors.semantic.incomeMuted };
 }
 function typeTextActiveStyle(t: TransactionType): TextStyle {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   return { color: t === 'expense' ? colors.semantic.expense : colors.semantic.income, fontWeight: '600' };
 }
 function catItemActiveStyle(color: string): ViewStyle {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   return { backgroundColor: color + '22', borderColor: color + '55' };
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  content: {
-    padding: spacing['2xl'],
-    gap: spacing.lg,
-    paddingBottom: spacing['4xl'],
-  },
-  typeRow: {
-    flexDirection: 'row',
-    backgroundColor: colors.background.tertiary,
-    borderRadius: radius.md,
-    padding: spacing.xs,
-    gap: spacing.xs,
-  },
-  typeBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.md,
-    borderRadius: radius.sm,
-    gap: spacing.xs,
-  },
-  typeText: {
-    ...typography.label.lg,
-    color: colors.text.secondary,
-  },
-  amountWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  currencySymbol: {
-    ...typography.heading.lg,
-    color: colors.text.secondary,
-  },
-  amountInput: {
-    ...typography.display.md,
-    color: colors.text.primary,
-    flex: 1,
-    paddingVertical: spacing.sm,
-    minHeight: 52,
-  },
-  section: {
-    gap: spacing.sm,
-  },
-  sectionLabel: {
-    ...typography.label.md,
-    color: colors.text.secondary,
-  },
-  categoryGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
-  catItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    backgroundColor: colors.background.tertiary,
-    borderRadius: radius.sm,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-  },
-  catName: {
-    ...typography.label.md,
-    color: colors.text.secondary,
-  },
-  error: {
-    ...typography.body.sm,
-    color: colors.semantic.expense,
-    textAlign: 'center',
-  },
 
-  // Pagamento
-  paymentRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  paymentBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xs,
-    paddingVertical: spacing.md,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    backgroundColor: colors.background.tertiary,
-  },
-  paymentBtnActive: {
-    borderColor: colors.accent.primary,
-    backgroundColor: colors.accent.muted,
-  },
-  paymentText: {
-    ...typography.label.md,
-    color: colors.text.secondary,
-  },
-  paymentTextActive: {
-    color: colors.accent.primary,
-    fontWeight: '600',
-  },
+function createStyles(c: Colors) {
+    return StyleSheet.create({
+    flex: { flex: 1 },
+    content: {
+      padding: spacing['2xl'],
+      gap: spacing.lg,
+      paddingBottom: spacing['4xl'],
+    },
+    typeRow: {
+      flexDirection: 'row',
+      backgroundColor: c.background.tertiary,
+      borderRadius: radius.md,
+      padding: spacing.xs,
+      gap: spacing.xs,
+    },
+    typeBtn: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: spacing.md,
+      borderRadius: radius.sm,
+      gap: spacing.xs,
+    },
+    typeText: {
+      ...typography.label.lg,
+      color: c.text.secondary,
+    },
+    amountWrapper: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    currencySymbol: {
+      ...typography.heading.lg,
+      color: c.text.secondary,
+    },
+    amountInput: {
+      ...typography.display.md,
+      color: c.text.primary,
+      flex: 1,
+      paddingVertical: spacing.sm,
+      minHeight: 52,
+    },
+    section: {
+      gap: spacing.sm,
+    },
+    sectionLabel: {
+      ...typography.label.md,
+      color: c.text.secondary,
+    },
+    categoryGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.sm,
+    },
+    catItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+      backgroundColor: c.background.tertiary,
+      borderRadius: radius.sm,
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.md,
+      borderWidth: 1,
+      borderColor: c.border.default,
+    },
+    catName: {
+      ...typography.label.md,
+      color: c.text.secondary,
+    },
+    error: {
+      ...typography.body.sm,
+      color: c.semantic.expense,
+      textAlign: 'center',
+    },
+  
+    // Pagamento
+    paymentRow: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+    },
+    paymentBtn: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.xs,
+      paddingVertical: spacing.md,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: c.border.default,
+      backgroundColor: c.background.tertiary,
+    },
+    paymentBtnActive: {
+      borderColor: c.accent.primary,
+      backgroundColor: c.accent.muted,
+    },
+    paymentText: {
+      ...typography.label.md,
+      color: c.text.secondary,
+    },
+    paymentTextActive: {
+      color: c.accent.primary,
+      fontWeight: '600',
+    },
+  
+    // Parcelas
+    installmentsSection: {
+      gap: spacing.sm,
+      marginTop: spacing.xs,
+    },
+    installmentsLabel: {
+      ...typography.label.sm,
+      color: c.text.tertiary,
+    },
+    presetsRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.xs,
+    },
+    presetBtn: {
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.md,
+      borderRadius: radius.sm,
+      borderWidth: 1,
+      borderColor: c.border.default,
+      backgroundColor: c.background.tertiary,
+    },
+    presetBtnActive: {
+      borderColor: c.accent.primary,
+      backgroundColor: c.accent.muted,
+    },
+    presetText: {
+      ...typography.label.md,
+      color: c.text.secondary,
+    },
+    presetTextActive: {
+      color: c.accent.primary,
+      fontWeight: '600',
+    },
+    customRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    customLabel: {
+      ...typography.label.md,
+      color: c.text.secondary,
+    },
+    customInput: {
+      ...typography.body.md,
+      color: c.text.primary,
+      backgroundColor: c.background.tertiary,
+      borderRadius: radius.sm,
+      borderWidth: 1,
+      borderColor: c.border.default,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      width: 80,
+    },
+    previewCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+      backgroundColor: c.accent.muted,
+      borderRadius: radius.sm,
+      padding: spacing.md,
+    },
+    previewText: {
+      ...typography.body.sm,
+      color: c.text.secondary,
+      flex: 1,
+    },
+    previewAmount: {
+      color: c.accent.primary,
+      fontWeight: '700',
+    },
+  });
+}
 
-  // Parcelas
-  installmentsSection: {
-    gap: spacing.sm,
-    marginTop: spacing.xs,
-  },
-  installmentsLabel: {
-    ...typography.label.sm,
-    color: colors.text.tertiary,
-  },
-  presetsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.xs,
-  },
-  presetBtn: {
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.sm,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    backgroundColor: colors.background.tertiary,
-  },
-  presetBtnActive: {
-    borderColor: colors.accent.primary,
-    backgroundColor: colors.accent.muted,
-  },
-  presetText: {
-    ...typography.label.md,
-    color: colors.text.secondary,
-  },
-  presetTextActive: {
-    color: colors.accent.primary,
-    fontWeight: '600',
-  },
-  customRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  customLabel: {
-    ...typography.label.md,
-    color: colors.text.secondary,
-  },
-  customInput: {
-    ...typography.body.md,
-    color: colors.text.primary,
-    backgroundColor: colors.background.tertiary,
-    borderRadius: radius.sm,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    width: 80,
-  },
-  previewCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    backgroundColor: colors.accent.muted,
-    borderRadius: radius.sm,
-    padding: spacing.md,
-  },
-  previewText: {
-    ...typography.body.sm,
-    color: colors.text.secondary,
-    flex: 1,
-  },
-  previewAmount: {
-    color: colors.accent.primary,
-    fontWeight: '700',
-  },
-});

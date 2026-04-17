@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { colors, typography, spacing, radius } from '@presentation/theme/index';
+import { useTheme, typography, spacing, radius, Colors } from '@presentation/theme';
 import { Transaction, Category } from '@/types';
 import { CategoryIcon } from '@presentation/ui/category-icon';
 import { formatCurrency } from '@utils/currency';
@@ -22,6 +22,8 @@ export function TransactionCard({
   onPress,
   onDelete,
 }: TransactionCardProps) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const isIncome = transaction.type === 'income';
   const amountColor = isIncome ? colors.semantic.income : colors.semantic.expense;
   const amountPrefix = isIncome ? '+' : '-';
@@ -78,72 +80,76 @@ export function TransactionCard({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.background.secondary,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    gap: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-  },
-  iconWrapper: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  info: {
-    flex: 1,
-    gap: 3,
-  },
-  description: {
-    ...typography.body.md,
-    color: colors.text.primary,
-    fontWeight: '500',
-  },
-  meta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  categoryName: {
-    ...typography.label.sm,
-    color: colors.text.tertiary,
-  },
-  dot: {
-    ...typography.label.sm,
-    color: colors.text.tertiary,
-  },
-  date: {
-    ...typography.label.sm,
-    color: colors.text.tertiary,
-  },
-  amount: {
-    ...typography.mono.md,
-    fontWeight: '600',
-  },
-  descRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  badge: {
-    backgroundColor: colors.accent.muted,
-    borderRadius: 4,
-    paddingHorizontal: 5,
-    paddingVertical: 1,
-  },
-  badgeText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: colors.accent.primary,
-  },
-  creditLabel: {
-    ...typography.label.sm,
-    color: colors.accent.primary,
-  },
-});
+
+function createStyles(c: Colors) {
+    return StyleSheet.create({
+    container: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: c.background.secondary,
+      borderRadius: radius.md,
+      padding: spacing.md,
+      gap: spacing.md,
+      borderWidth: 1,
+      borderColor: c.border.subtle,
+    },
+    iconWrapper: {
+      width: 40,
+      height: 40,
+      borderRadius: radius.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    info: {
+      flex: 1,
+      gap: 3,
+    },
+    description: {
+      ...typography.body.md,
+      color: c.text.primary,
+      fontWeight: '500',
+    },
+    meta: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    categoryName: {
+      ...typography.label.sm,
+      color: c.text.tertiary,
+    },
+    dot: {
+      ...typography.label.sm,
+      color: c.text.tertiary,
+    },
+    date: {
+      ...typography.label.sm,
+      color: c.text.tertiary,
+    },
+    amount: {
+      ...typography.mono.md,
+      fontWeight: '600',
+    },
+    descRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    badge: {
+      backgroundColor: c.accent.muted,
+      borderRadius: 4,
+      paddingHorizontal: 5,
+      paddingVertical: 1,
+    },
+    badgeText: {
+      fontSize: 10,
+      fontWeight: '700',
+      color: c.accent.primary,
+    },
+    creditLabel: {
+      ...typography.label.sm,
+      color: c.accent.primary,
+    },
+  });
+}
+

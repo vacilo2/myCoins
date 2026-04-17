@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { colors, typography, spacing } from '@presentation/theme/index';
+import { useTheme, typography, spacing, Colors } from '@presentation/theme';
 import { ParseResult, buildExistingDedupKeys } from '@services/csv-import';
 import { useTransactionStore } from '@store/transaction-store';
 import { useCategoryStore } from '@store/category-store';
@@ -28,6 +28,8 @@ const STEP_TITLES: Record<Step, string> = {
 };
 
 export function ImportCsvModal() {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [step, setStep] = useState<Step>(0);
   const [parseResult, setParseResult] = useState<ParseResult | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -176,17 +178,21 @@ export function ImportCsvModal() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background.primary },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing['2xl'],
-    paddingVertical: spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.subtle,
-  },
-  title: { ...typography.heading.md, color: colors.text.primary },
-  placeholder: { width: 24 },
-});
+
+function createStyles(c: Colors) {
+    return StyleSheet.create({
+    safe: { flex: 1, backgroundColor: c.background.primary },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: spacing['2xl'],
+      paddingVertical: spacing.lg,
+      borderBottomWidth: 1,
+      borderBottomColor: c.border.subtle,
+    },
+    title: { ...typography.heading.md, color: c.text.primary },
+    placeholder: { width: 24 },
+  });
+}
+

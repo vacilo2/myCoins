@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
-import { colors, typography, spacing, radius } from '@presentation/theme/index';
+import { useTheme, typography, spacing, radius, Colors } from '@presentation/theme';
 import { FinancialInsights } from '@features/financeiro/use-financial-insights';
 import { formatCurrency } from '@utils/currency';
 
@@ -10,6 +10,8 @@ interface InsightCardsProps {
 }
 
 export function InsightCards({ insights, currency }: InsightCardsProps) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const { budgetUsedPct, actualSavingsPct, savingsGoalPct, projectedMonthlyExpense, monthlyIncome, incomeType } = insights;
 
   const isVariableIncome = incomeType === 'variavel' || incomeType === 'autonomo';
@@ -96,44 +98,48 @@ export function InsightCards({ insights, currency }: InsightCardsProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  row: {
-    paddingHorizontal: spacing['2xl'],
-    gap: spacing.md,
-    paddingBottom: spacing.xs,
-  },
-  card: {
-    backgroundColor: colors.background.secondary,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    minWidth: 130,
-    gap: spacing.xs,
-  },
-  cardTitle: {
-    ...typography.label.sm,
-    color: colors.text.tertiary,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  cardValue: {
-    ...typography.heading.lg,
-    color: colors.text.primary,
-  },
-  cardSub: {
-    ...typography.label.sm,
-    color: colors.text.tertiary,
-  },
-  barBg: {
-    height: 4,
-    backgroundColor: colors.border.subtle,
-    borderRadius: radius.full,
-    marginTop: spacing.xs,
-    overflow: 'hidden',
-  },
-  barFill: {
-    height: '100%',
-    borderRadius: radius.full,
-  },
-});
+
+function createStyles(c: Colors) {
+    return StyleSheet.create({
+    row: {
+      paddingHorizontal: spacing['2xl'],
+      gap: spacing.md,
+      paddingBottom: spacing.xs,
+    },
+    card: {
+      backgroundColor: c.background.secondary,
+      borderRadius: radius.lg,
+      padding: spacing.lg,
+      borderWidth: 1,
+      borderColor: c.border.default,
+      minWidth: 130,
+      gap: spacing.xs,
+    },
+    cardTitle: {
+      ...typography.label.sm,
+      color: c.text.tertiary,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+    },
+    cardValue: {
+      ...typography.heading.lg,
+      color: c.text.primary,
+    },
+    cardSub: {
+      ...typography.label.sm,
+      color: c.text.tertiary,
+    },
+    barBg: {
+      height: 4,
+      backgroundColor: c.border.subtle,
+      borderRadius: radius.full,
+      marginTop: spacing.xs,
+      overflow: 'hidden',
+    },
+    barFill: {
+      height: '100%',
+      borderRadius: radius.full,
+    },
+  });
+}
+

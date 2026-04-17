@@ -9,11 +9,13 @@ import { useCategoryStore } from '@store/category-store';
 import { usePreferencesStore } from '@store/preferences-store';
 import { useAuthStore } from '@store/auth-store';
 import { onAuthStateChange } from '@services/auth/auth-service';
-import { colors } from '@theme/index';
+import { useTheme, Colors } from '@theme';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const { colors, isDark } = useTheme();
+  const styles = createStyles(colors);
   const transactionHydrated = useTransactionStore((s) => s.isHydrated);
   const categoryHydrated = useCategoryStore((s) => s.isHydrated);
   const prefsHydrated = usePreferencesStore((s) => s.isHydrated);
@@ -94,7 +96,7 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={styles.root}>
-      <StatusBar style="light" />
+      <StatusBar style={isDark ? 'light' : 'dark'} />
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background.primary } }}>
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
@@ -110,6 +112,10 @@ export default function RootLayout() {
   );
 }
 
-const styles = StyleSheet.create({
-  root: { flex: 1 },
-});
+
+function createStyles(c: Colors) {
+    return StyleSheet.create({
+    root: { flex: 1 },
+  });
+}
+

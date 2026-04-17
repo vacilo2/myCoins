@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { colors, typography, spacing, radius } from '@presentation/theme/index';
+import { useTheme, typography, spacing, radius, Colors } from '@presentation/theme';
 import { Button } from '@presentation/ui/button';
 import { ParsedRow } from '@services/csv-import';
 import { ReviewRowCard } from './ReviewRowCard';
@@ -27,6 +27,8 @@ export function StepReview({
   onConfirm,
   currency,
 }: StepReviewProps) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const validRows = rows.filter((r) => !r.error);
   const errorRows = rows.filter((r) => !!r.error);
   const selectedCount = selected.size;
@@ -99,54 +101,58 @@ export function StepReview({
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  statsBar: {
-    flexDirection: 'row',
-    backgroundColor: colors.background.secondary,
-    borderRadius: radius.md,
-    marginHorizontal: spacing['2xl'],
-    marginTop: spacing.lg,
-    padding: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-  },
-  stat: { flex: 1, alignItems: 'center', gap: 2 },
-  statValue: { ...typography.heading.md, color: colors.text.primary },
-  statLabel: { ...typography.label.sm, color: colors.text.tertiary },
-  statDivider: { width: 1, backgroundColor: colors.border.subtle, marginVertical: 4 },
-  filenameRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    paddingHorizontal: spacing['2xl'],
-    marginTop: spacing.md,
-  },
-  filename: {
-    ...typography.label.sm,
-    color: colors.text.tertiary,
-    flex: 1,
-  },
-  selectRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: spacing['2xl'],
-    marginTop: spacing.md,
-    marginBottom: spacing.sm,
-  },
-  selectLabel: { ...typography.label.md, color: colors.text.secondary },
-  selectAction: { ...typography.label.md, color: colors.accent.primary },
-  list: { flex: 1 },
-  listContent: {
-    paddingHorizontal: spacing['2xl'],
-    paddingBottom: spacing['2xl'],
-  },
-  separator: { height: spacing.sm },
-  footer: {
-    padding: spacing['2xl'],
-    paddingTop: spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: colors.border.subtle,
-  },
-});
+
+function createStyles(c: Colors) {
+    return StyleSheet.create({
+    container: { flex: 1 },
+    statsBar: {
+      flexDirection: 'row',
+      backgroundColor: c.background.secondary,
+      borderRadius: radius.md,
+      marginHorizontal: spacing['2xl'],
+      marginTop: spacing.lg,
+      padding: spacing.md,
+      borderWidth: 1,
+      borderColor: c.border.default,
+    },
+    stat: { flex: 1, alignItems: 'center', gap: 2 },
+    statValue: { ...typography.heading.md, color: c.text.primary },
+    statLabel: { ...typography.label.sm, color: c.text.tertiary },
+    statDivider: { width: 1, backgroundColor: c.border.subtle, marginVertical: 4 },
+    filenameRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+      paddingHorizontal: spacing['2xl'],
+      marginTop: spacing.md,
+    },
+    filename: {
+      ...typography.label.sm,
+      color: c.text.tertiary,
+      flex: 1,
+    },
+    selectRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: spacing['2xl'],
+      marginTop: spacing.md,
+      marginBottom: spacing.sm,
+    },
+    selectLabel: { ...typography.label.md, color: c.text.secondary },
+    selectAction: { ...typography.label.md, color: c.accent.primary },
+    list: { flex: 1 },
+    listContent: {
+      paddingHorizontal: spacing['2xl'],
+      paddingBottom: spacing['2xl'],
+    },
+    separator: { height: spacing.sm },
+    footer: {
+      padding: spacing['2xl'],
+      paddingTop: spacing.md,
+      borderTopWidth: 1,
+      borderTopColor: c.border.subtle,
+    },
+  });
+}
+

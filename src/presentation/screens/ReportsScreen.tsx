@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { colors, typography, spacing, radius } from '@presentation/theme/index';
+import { useTheme, typography, spacing, radius, Colors } from '@presentation/theme';
 import { useMonthlyChart, useCategoryReport } from '@features/relatorios/use-reports';
 import { useSummary } from '@features/financeiro/use-summary';
 import { usePreferencesStore } from '@store/preferences-store';
@@ -12,6 +12,8 @@ import { formatCurrency } from '@utils/currency';
 import { getPreviousMonth, getNextMonth, formatMonthYear } from '@utils/date';
 
 export function ReportsScreen() {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [currentDate, setCurrentDate] = useState(new Date());
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth() + 1;
@@ -123,92 +125,96 @@ export function ReportsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background.primary },
-  scroll: { flex: 1 },
-  content: { padding: spacing['2xl'], gap: spacing['2xl'], paddingBottom: 100 },
-  monthNav: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xl,
-  },
-  monthText: {
-    ...typography.label.lg,
-    color: colors.text.primary,
-    textTransform: 'capitalize',
-    minWidth: 140,
-    textAlign: 'center',
-  },
-  metricsRow: {
-    flexDirection: 'row',
-    gap: spacing.md,
-  },
-  metric: {
-    flex: 1,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
-    gap: spacing.xs,
-  },
-  metricLabel: {
-    ...typography.label.sm,
-    color: colors.text.secondary,
-  },
-  metricValue: {
-    ...typography.mono.md,
-    fontWeight: '700',
-  },
-  savingsCard: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: colors.background.secondary,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-  },
-  savingsLabel: {
-    ...typography.label.lg,
-    color: colors.text.primary,
-  },
-  savingsDesc: {
-    ...typography.body.sm,
-    color: colors.text.tertiary,
-    marginTop: 2,
-  },
-  savingsValue: {
-    ...typography.mono.lg,
-    fontWeight: '700',
-  },
-  section: { gap: spacing.md },
-  sectionTitle: {
-    ...typography.heading.sm,
-    color: colors.text.primary,
-  },
-  catList: { gap: spacing.sm },
-  catRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.background.secondary,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    gap: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-  },
-  catIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: radius.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  catInfo: { flex: 1, gap: 6 },
-  catName: { ...typography.body.sm, color: colors.text.primary },
-  barTrack: { height: 3, backgroundColor: colors.surface.subtle, borderRadius: radius.full },
-  barFill: { height: 3, borderRadius: radius.full },
-  catRight: { alignItems: 'flex-end' },
-  catAmount: { ...typography.mono.sm, color: colors.text.primary },
-  catPct: { ...typography.label.sm, color: colors.text.tertiary, marginTop: 2 },
-});
+
+function createStyles(c: Colors) {
+    return StyleSheet.create({
+    safe: { flex: 1, backgroundColor: c.background.primary },
+    scroll: { flex: 1 },
+    content: { padding: spacing['2xl'], gap: spacing['2xl'], paddingBottom: 100 },
+    monthNav: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.xl,
+    },
+    monthText: {
+      ...typography.label.lg,
+      color: c.text.primary,
+      textTransform: 'capitalize',
+      minWidth: 140,
+      textAlign: 'center',
+    },
+    metricsRow: {
+      flexDirection: 'row',
+      gap: spacing.md,
+    },
+    metric: {
+      flex: 1,
+      borderRadius: radius.lg,
+      padding: spacing.lg,
+      gap: spacing.xs,
+    },
+    metricLabel: {
+      ...typography.label.sm,
+      color: c.text.secondary,
+    },
+    metricValue: {
+      ...typography.mono.md,
+      fontWeight: '700',
+    },
+    savingsCard: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      backgroundColor: c.background.secondary,
+      borderRadius: radius.lg,
+      padding: spacing.lg,
+      borderWidth: 1,
+      borderColor: c.border.default,
+    },
+    savingsLabel: {
+      ...typography.label.lg,
+      color: c.text.primary,
+    },
+    savingsDesc: {
+      ...typography.body.sm,
+      color: c.text.tertiary,
+      marginTop: 2,
+    },
+    savingsValue: {
+      ...typography.mono.lg,
+      fontWeight: '700',
+    },
+    section: { gap: spacing.md },
+    sectionTitle: {
+      ...typography.heading.sm,
+      color: c.text.primary,
+    },
+    catList: { gap: spacing.sm },
+    catRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: c.background.secondary,
+      borderRadius: radius.md,
+      padding: spacing.md,
+      gap: spacing.md,
+      borderWidth: 1,
+      borderColor: c.border.subtle,
+    },
+    catIcon: {
+      width: 32,
+      height: 32,
+      borderRadius: radius.sm,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    catInfo: { flex: 1, gap: 6 },
+    catName: { ...typography.body.sm, color: c.text.primary },
+    barTrack: { height: 3, backgroundColor: c.surface.subtle, borderRadius: radius.full },
+    barFill: { height: 3, borderRadius: radius.full },
+    catRight: { alignItems: 'flex-end' },
+    catAmount: { ...typography.mono.sm, color: c.text.primary },
+    catPct: { ...typography.label.sm, color: c.text.tertiary, marginTop: 2 },
+  });
+}
+

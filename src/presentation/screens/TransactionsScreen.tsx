@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { colors, typography, spacing, radius } from '@presentation/theme/index';
+import { useTheme, typography, spacing, radius, Colors } from '@presentation/theme';
 import { TransactionType } from '@/types';
 import { useTransactions } from '@features/transacoes/use-transactions';
 import { usePreferencesStore } from '@store/preferences-store';
@@ -12,6 +12,8 @@ import { Badge } from '@presentation/ui/badge';
 import { TouchableOpacity } from 'react-native';
 
 export function TransactionsScreen() {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<TransactionType | undefined>();
   const currency = usePreferencesStore((s) => s.preferences.currency);
@@ -78,45 +80,49 @@ export function TransactionsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  searchWrapper: {
-    paddingHorizontal: spacing['2xl'],
-    paddingBottom: spacing.md,
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.background.tertiary,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.md,
-    gap: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    height: 48,
-  },
-  searchInput: {
-    flex: 1,
-    ...typography.body.md,
-    color: colors.text.primary,
-  },
-  filtersRow: {
-    flexDirection: 'row',
-    paddingHorizontal: spacing['2xl'],
-    gap: spacing.sm,
-    paddingBottom: spacing.md,
-  },
-  filterBtn: {
-    opacity: 0.5,
-  },
-  filterBtnActive: {
-    opacity: 1,
-  },
-  list: {
-    flex: 1,
-    paddingHorizontal: spacing['2xl'],
-  },
-});
+
+function createStyles(c: Colors) {
+    return StyleSheet.create({
+    safe: {
+      flex: 1,
+      backgroundColor: c.background.primary,
+    },
+    searchWrapper: {
+      paddingHorizontal: spacing['2xl'],
+      paddingBottom: spacing.md,
+    },
+    searchContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: c.background.tertiary,
+      borderRadius: radius.md,
+      paddingHorizontal: spacing.md,
+      gap: spacing.sm,
+      borderWidth: 1,
+      borderColor: c.border.default,
+      height: 48,
+    },
+    searchInput: {
+      flex: 1,
+      ...typography.body.md,
+      color: c.text.primary,
+    },
+    filtersRow: {
+      flexDirection: 'row',
+      paddingHorizontal: spacing['2xl'],
+      gap: spacing.sm,
+      paddingBottom: spacing.md,
+    },
+    filterBtn: {
+      opacity: 0.5,
+    },
+    filterBtnActive: {
+      opacity: 1,
+    },
+    list: {
+      flex: 1,
+      paddingHorizontal: spacing['2xl'],
+    },
+  });
+}
+

@@ -13,6 +13,7 @@
       "@services/*": ["src/services/*"],
       "@types/*": ["src/types/*"],
       "@ui/*": ["src/presentation/ui/*"],
+      "@theme": ["src/presentation/theme/index"],
       "@theme/*": ["src/presentation/theme/*"],
       "@hooks/*": ["src/hooks/*"],
       "@repositories/*": ["src/repositories/*"]

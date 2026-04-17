@@ -16,7 +16,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 
-import { colors, typography, spacing, radius } from '@presentation/theme/index';
+import { useTheme, typography, spacing, radius, Colors } from '@presentation/theme';
 import { useTransactionStore } from '@store/transaction-store';
 import { useCategoryStore } from '@store/category-store';
 import { usePreferencesStore } from '@store/preferences-store';
@@ -42,7 +42,7 @@ const TIP_POOL: TipCategory[] = [
     id: 'expense',
     label: 'Despesas',
     icon: 'arrow-up-circle-outline',
-    color: colors.semantic.expense,
+    color: '#b53333',
     pool: [
       'gastei 45 reais com almoço',
       'paguei 120 de farmácia',
@@ -70,7 +70,7 @@ const TIP_POOL: TipCategory[] = [
     id: 'income',
     label: 'Receitas',
     icon: 'arrow-down-circle-outline',
-    color: colors.semantic.income,
+    color: '#4a7c59',
     pool: [
       'recebi 3000 de salário',
       'ganhei 500 de freela',
@@ -93,7 +93,7 @@ const TIP_POOL: TipCategory[] = [
     id: 'credit',
     label: 'Crédito',
     icon: 'credit-card-outline',
-    color: colors.accent.primary,
+    color: '#c96442',
     pool: [
       'gastei 1200 no crédito em 12x',
       'comprei notebook 3600 dividi em 24x',
@@ -151,6 +151,8 @@ const MASCOT_BUBBLE_TEXT: Record<MascotState, string | null> = {
 };
 
 function MascotBubble({ mascotState, idleMessage }: { mascotState: MascotState; idleMessage: string }) {
+  const { colors } = useTheme();
+  const tipStyles = createTipStyles(colors);
   const translateY = useRef(new Animated.Value(0)).current;
   const scale      = useRef(new Animated.Value(1)).current;
   const translateX = useRef(new Animated.Value(0)).current;
@@ -251,6 +253,8 @@ function MascotBubble({ mascotState, idleMessage }: { mascotState: MascotState; 
 }
 
 function TypingDot({ delay }: { delay: number }) {
+  const { colors } = useTheme();
+  const tipStyles = createTipStyles(colors);
   const anim = useRef(new Animated.Value(0.3)).current;
 
   useEffect(() => {
@@ -282,6 +286,8 @@ function TipsSection({
   onToggleVisible: () => void;
   randomTips: Record<string, string[]>;
 }) {
+  const { colors } = useTheme();
+  const tipStyles = createTipStyles(colors);
   const [activeTab, setActiveTab] = useState('expense');
   const active    = TIP_POOL.find(c => c.id === activeTab)!;
   const shownTips = randomTips[activeTab] ?? [];
@@ -347,6 +353,8 @@ function TipsSection({
 // Tela principal
 // ---------------------------------------------------------------------------
 export function HomeScreen() {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [inputText, setInputText]       = useState('');
   const [feedback, setFeedback]         = useState<{ message: string; isError: boolean } | null>(null);
   const [tipsVisible, setTipsVisible]   = useState(true);
@@ -592,228 +600,236 @@ export function HomeScreen() {
 // ---------------------------------------------------------------------------
 // Styles — Mascote + Dicas
 // ---------------------------------------------------------------------------
-const tipStyles = StyleSheet.create({
-  // Mascote
-  mascotArea: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-  },
-  mascotAvatar: {
-    width: 58,
-    height: 58,
-    borderRadius: radius.lg,
-    backgroundColor: 'transparent',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  mascotAvatarActive: {
-    shadowColor: colors.accent.primary,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  mascotImage: {
-    width: 58,
-    height: 58,
-  },
-  mascotBubble: {
-    flex: 1,
-    backgroundColor: colors.surface.subtle,
-    borderRadius: radius.lg,
-    borderTopLeftRadius: 4,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-  },
-  mascotBubbleTyping: {
-    borderColor: colors.accent.primary + '55',
-    backgroundColor: colors.accent.muted,
-  },
-  mascotBubbleSuccess: {
-    borderColor: colors.semantic.income + '55',
-    backgroundColor: colors.semantic.incomeMuted,
-  },
-  mascotBubbleError: {
-    borderColor: colors.semantic.expense + '55',
-    backgroundColor: colors.semantic.expenseMuted,
-  },
-  mascotText: {
-    ...(typography.body.sm as object),
-    color: colors.text.secondary,
-  },
-  dotsRow: {
-    flexDirection: 'row',
-    gap: 4,
-    marginTop: 4,
-  },
-  dot: {
-    width: 5,
-    height: 5,
-    borderRadius: 3,
-    backgroundColor: colors.accent.primary,
-  },
 
-  // Seção de dicas
-  sectionContainer: {
-    gap: spacing.md,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  sectionTitle: {
-    ...(typography.label.md as object),
-    color: colors.text.secondary,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  toggleBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-  },
-  toggleText: {
-    ...(typography.label.sm as object),
-    color: colors.text.tertiary,
-  },
+function createTipStyles(c: Colors) {
+    return StyleSheet.create({
+    // Mascote
+    mascotArea: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+    },
+    mascotAvatar: {
+      width: 58,
+      height: 58,
+      borderRadius: radius.lg,
+      backgroundColor: 'transparent',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    mascotAvatarActive: {
+      shadowColor: c.accent.primary,
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0.6,
+      shadowRadius: 8,
+      elevation: 6,
+    },
+    mascotImage: {
+      width: 58,
+      height: 58,
+    },
+    mascotBubble: {
+      flex: 1,
+      backgroundColor: c.surface.subtle,
+      borderRadius: radius.lg,
+      borderTopLeftRadius: 4,
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.md,
+      borderWidth: 1,
+      borderColor: c.border.subtle,
+    },
+    mascotBubbleTyping: {
+      borderColor: c.accent.primary + '55',
+      backgroundColor: c.accent.muted,
+    },
+    mascotBubbleSuccess: {
+      borderColor: c.semantic.income + '55',
+      backgroundColor: c.semantic.incomeMuted,
+    },
+    mascotBubbleError: {
+      borderColor: c.semantic.expense + '55',
+      backgroundColor: c.semantic.expenseMuted,
+    },
+    mascotText: {
+      ...(typography.body.sm as object),
+      color: c.text.secondary,
+    },
+    dotsRow: {
+      flexDirection: 'row',
+      gap: 4,
+      marginTop: 4,
+    },
+    dot: {
+      width: 5,
+      height: 5,
+      borderRadius: 3,
+      backgroundColor: c.accent.primary,
+    },
+  
+    // Seção de dicas
+    sectionContainer: {
+      gap: spacing.md,
+    },
+    sectionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    sectionTitle: {
+      ...(typography.label.md as object),
+      color: c.text.secondary,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+    },
+    toggleBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 3,
+    },
+    toggleText: {
+      ...(typography.label.sm as object),
+      color: c.text.tertiary,
+    },
+  
+    // Abas
+    tabs: {
+      flexDirection: 'row',
+      gap: spacing.xs,
+    },
+    tab: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 4,
+      paddingVertical: spacing.sm,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: c.border.default,
+      backgroundColor: c.background.tertiary,
+    },
+    tabText: {
+      ...(typography.label.sm as object),
+      color: c.text.tertiary,
+    },
+  
+    // Chips
+    chips: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.sm,
+    },
+    chip: {
+      paddingVertical: spacing.xs,
+      paddingHorizontal: spacing.md,
+      borderRadius: radius.full,
+      borderWidth: 1,
+      backgroundColor: c.background.secondary,
+    },
+    chipText: {
+      ...(typography.label.sm as object),
+    },
+  });
+}
 
-  // Abas
-  tabs: {
-    flexDirection: 'row',
-    gap: spacing.xs,
-  },
-  tab: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    backgroundColor: colors.background.tertiary,
-  },
-  tabText: {
-    ...(typography.label.sm as object),
-    color: colors.text.tertiary,
-  },
-
-  // Chips
-  chips: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
-  chip: {
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.full,
-    borderWidth: 1,
-    backgroundColor: colors.background.secondary,
-  },
-  chipText: {
-    ...(typography.label.sm as object),
-  },
-});
 
 // ---------------------------------------------------------------------------
 // Styles — HomeScreen
 // ---------------------------------------------------------------------------
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background.primary },
-  flex: { flex: 1 },
-  content: {
-    padding: spacing['2xl'],
-    gap: spacing.xl,
-    paddingBottom: 120,
-  },
-  header: { gap: spacing.xs, marginTop: spacing.sm },
-  appName: {
-    ...(typography.label.md as object),
-    color: colors.accent.primary,
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-  },
-  greeting: {
-    ...(typography.heading.xl as object),
-    color: colors.text.primary,
-  },
 
-  // Input
-  inputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface.default,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    gap: spacing.sm,
-  },
-  inputRowActive: {
-    borderColor: colors.accent.primary + '88',
-  },
-  textInput: {
-    ...(typography.body.md as object),
-    color: colors.text.primary,
-    flex: 1,
-    paddingVertical: spacing.sm,
-  },
-  sendButton: {
-    backgroundColor: colors.accent.primary,
-    borderRadius: radius.full,
-    width: 36,
-    height: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  sendButtonDisabled: { opacity: 0.35 },
+function createStyles(c: Colors) {
+    return StyleSheet.create({
+    safe: { flex: 1, backgroundColor: c.background.primary },
+    flex: { flex: 1 },
+    content: {
+      padding: spacing['2xl'],
+      gap: spacing.xl,
+      paddingBottom: 120,
+    },
+    header: { gap: spacing.xs, marginTop: spacing.sm },
+    appName: {
+      ...(typography.label.md as object),
+      color: c.accent.primary,
+      letterSpacing: 2,
+      textTransform: 'uppercase',
+    },
+    greeting: {
+      ...(typography.heading.xl as object),
+      color: c.text.primary,
+    },
+  
+    // Input
+    inputRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: c.surface.default,
+      borderRadius: radius.xl,
+      borderWidth: 1,
+      borderColor: c.border.default,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.sm,
+      gap: spacing.sm,
+    },
+    inputRowActive: {
+      borderColor: c.accent.primary + '88',
+    },
+    textInput: {
+      ...(typography.body.md as object),
+      color: c.text.primary,
+      flex: 1,
+      paddingVertical: spacing.sm,
+    },
+    sendButton: {
+      backgroundColor: c.accent.primary,
+      borderRadius: radius.full,
+      width: 36,
+      height: 36,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    sendButtonDisabled: { opacity: 0.35 },
+  
+    // Feedback
+    feedbackStrip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      backgroundColor: c.surface.subtle,
+      borderRadius: radius.lg,
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.md,
+      borderWidth: 1,
+      borderColor: c.semantic.incomeMuted,
+    },
+    feedbackError: { borderColor: c.semantic.expenseMuted },
+    feedbackText: {
+      ...(typography.body.sm as object),
+      color: c.semantic.income,
+      flex: 1,
+    },
+    feedbackTextError: { color: c.semantic.expense },
+  
+    // Recentes
+    recentSection: { gap: spacing.md },
+    sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    sectionTitle: {
+      ...(typography.heading.sm as object),
+      color: c.text.primary,
+    },
+    seeAll: {
+      ...(typography.label.md as object),
+      color: c.accent.primary,
+    },
+    list: { gap: spacing.sm },
+  
+    // Empty
+    emptyHint: { alignItems: 'center', paddingVertical: spacing['2xl'] },
+    emptyText: {
+      ...(typography.body.md as object),
+      color: c.text.tertiary,
+      textAlign: 'center',
+      lineHeight: 22,
+    },
+  });
+}
 
-  // Feedback
-  feedbackStrip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    backgroundColor: colors.surface.subtle,
-    borderRadius: radius.lg,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.semantic.incomeMuted,
-  },
-  feedbackError: { borderColor: colors.semantic.expenseMuted },
-  feedbackText: {
-    ...(typography.body.sm as object),
-    color: colors.semantic.income,
-    flex: 1,
-  },
-  feedbackTextError: { color: colors.semantic.expense },
-
-  // Recentes
-  recentSection: { gap: spacing.md },
-  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  sectionTitle: {
-    ...(typography.heading.sm as object),
-    color: colors.text.primary,
-  },
-  seeAll: {
-    ...(typography.label.md as object),
-    color: colors.accent.primary,
-  },
-  list: { gap: spacing.sm },
-
-  // Empty
-  emptyHint: { alignItems: 'center', paddingVertical: spacing['2xl'] },
-  emptyText: {
-    ...(typography.body.md as object),
-    color: colors.text.tertiary,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-});

@@ -3,7 +3,7 @@ import { View, ScrollView, Text, StyleSheet, TouchableOpacity, Alert } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { colors, typography, spacing } from '@presentation/theme/index';
+import { useTheme, typography, spacing, Colors } from '@presentation/theme';
 import { TransactionType } from '@/types';
 import { useCategoryStore } from '@store/category-store';
 import { useTransactionStore } from '@store/transaction-store';
@@ -12,6 +12,8 @@ import { ScreenHeader } from '@presentation/layouts/screen-header';
 import { EmptyState } from '@presentation/ui/empty-state';
 
 export function CategoriesScreen() {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [tab, setTab] = useState<TransactionType>('expense');
   const allCategories = useCategoryStore((s) => s.categories);
   const deleteCategory = useCategoryStore((s) => s.deleteCategory);
@@ -87,36 +89,40 @@ export function CategoriesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background.primary },
-  tabs: {
-    flexDirection: 'row',
-    marginHorizontal: spacing['2xl'],
-    marginBottom: spacing.md,
-    backgroundColor: colors.background.tertiary,
-    borderRadius: 10,
-    padding: 4,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: spacing.sm,
-    alignItems: 'center',
-    borderRadius: 8,
-  },
-  tabActive: {
-    backgroundColor: colors.background.secondary,
-  },
-  tabText: {
-    ...typography.label.md,
-    color: colors.text.tertiary,
-  },
-  tabTextActive: {
-    color: colors.text.primary,
-    fontWeight: '600',
-  },
-  list: {
-    paddingHorizontal: spacing['2xl'],
-    gap: spacing.sm,
-    paddingBottom: 100,
-  },
-});
+
+function createStyles(c: Colors) {
+    return StyleSheet.create({
+    safe: { flex: 1, backgroundColor: c.background.primary },
+    tabs: {
+      flexDirection: 'row',
+      marginHorizontal: spacing['2xl'],
+      marginBottom: spacing.md,
+      backgroundColor: c.background.tertiary,
+      borderRadius: 10,
+      padding: 4,
+    },
+    tab: {
+      flex: 1,
+      paddingVertical: spacing.sm,
+      alignItems: 'center',
+      borderRadius: 8,
+    },
+    tabActive: {
+      backgroundColor: c.background.secondary,
+    },
+    tabText: {
+      ...typography.label.md,
+      color: c.text.tertiary,
+    },
+    tabTextActive: {
+      color: c.text.primary,
+      fontWeight: '600',
+    },
+    list: {
+      paddingHorizontal: spacing['2xl'],
+      gap: spacing.sm,
+      paddingBottom: 100,
+    },
+  });
+}
+

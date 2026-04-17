@@ -2,11 +2,13 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { colors, typography, spacing, radius } from '@presentation/theme/index';
+import { useTheme, typography, spacing, radius, Colors } from '@presentation/theme';
 import { useUIStore } from '@store/ui-store';
 import { usePreferencesStore } from '@store/preferences-store';
 
 export function ProfileProgressCard() {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const snoozeProfileCard = useUIStore((s) => s.snoozeProfileCard);
   const profileCardSnoozedUntil = useUIStore((s) => s.profileCardSnoozedUntil);
   const profileCompletionLevel = usePreferencesStore((s) => s.preferences.profileCompletionLevel);
@@ -51,60 +53,64 @@ export function ProfileProgressCard() {
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.background.secondary,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
-    borderWidth: 1,
-    borderColor: colors.accent.primary + '44',
-    gap: spacing.md,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-  },
-  iconWrapper: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.md,
-    backgroundColor: colors.accent.muted,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  textBlock: { flex: 1, gap: 2 },
-  title: { ...typography.label.lg, color: colors.text.primary, fontWeight: '700' },
-  sub: { ...typography.label.sm, color: colors.text.secondary },
-  barBg: {
-    height: 6,
-    backgroundColor: colors.border.subtle,
-    borderRadius: radius.full,
-    overflow: 'hidden',
-  },
-  barFill: {
-    height: '100%',
-    backgroundColor: colors.accent.primary,
-    borderRadius: radius.full,
-  },
-  actions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.lg,
-  },
-  btnPrimary: {
-    backgroundColor: colors.accent.primary,
-    borderRadius: radius.md,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.xl,
-  },
-  btnPrimaryText: {
-    ...typography.label.lg,
-    color: colors.text.inverse,
-    fontWeight: '700',
-  },
-  btnSecondaryText: {
-    ...typography.label.md,
-    color: colors.text.tertiary,
-  },
-});
+
+function createStyles(c: Colors) {
+    return StyleSheet.create({
+    card: {
+      backgroundColor: c.background.secondary,
+      borderRadius: radius.lg,
+      padding: spacing.lg,
+      borderWidth: 1,
+      borderColor: c.accent.primary + '44',
+      gap: spacing.md,
+    },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+    },
+    iconWrapper: {
+      width: 40,
+      height: 40,
+      borderRadius: radius.md,
+      backgroundColor: c.accent.muted,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    textBlock: { flex: 1, gap: 2 },
+    title: { ...typography.label.lg, color: c.text.primary, fontWeight: '700' },
+    sub: { ...typography.label.sm, color: c.text.secondary },
+    barBg: {
+      height: 6,
+      backgroundColor: c.border.subtle,
+      borderRadius: radius.full,
+      overflow: 'hidden',
+    },
+    barFill: {
+      height: '100%',
+      backgroundColor: c.accent.primary,
+      borderRadius: radius.full,
+    },
+    actions: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.lg,
+    },
+    btnPrimary: {
+      backgroundColor: c.accent.primary,
+      borderRadius: radius.md,
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.xl,
+    },
+    btnPrimaryText: {
+      ...typography.label.lg,
+      color: c.text.inverse,
+      fontWeight: '700',
+    },
+    btnSecondaryText: {
+      ...typography.label.md,
+      color: c.text.tertiary,
+    },
+  });
+}
+

@@ -13,9 +13,11 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@features/auth';
-import { colors } from '@theme/index';
+import { useTheme, Colors } from '@theme';
 
 export function SignupScreen() {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const router = useRouter();
   const { signUp, isLoading, error } = useAuth();
 
@@ -134,106 +136,110 @@ export function SignupScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  flex: {
-    flex: 1,
-  },
-  content: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 48,
-  },
-  logo: {
-    fontSize: 13,
-    fontWeight: '600',
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-    color: colors.accent.primary,
-    marginBottom: 12,
-  },
-  heading: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: colors.text.primary,
-    marginBottom: 8,
-  },
-  sub: {
-    fontSize: 15,
-    color: colors.text.secondary,
-    marginBottom: 36,
-  },
-  form: {
-    gap: 12,
-  },
-  input: {
-    backgroundColor: colors.surface.default,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 15,
-    color: colors.text.primary,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-  },
-  error: {
-    fontSize: 13,
-    color: colors.semantic.expense,
-    marginTop: 2,
-  },
-  button: {
-    backgroundColor: colors.accent.primary,
-    borderRadius: 12,
-    paddingVertical: 15,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  buttonDisabled: {
-    opacity: 0.4,
-  },
-  buttonText: {
-    color: colors.text.inverse,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 32,
-  },
-  footerText: {
-    color: colors.text.tertiary,
-    fontSize: 14,
-  },
-  footerLink: {
-    color: colors.accent.primary,
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  // Success state
-  successContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 32,
-    gap: 16,
-  },
-  successIcon: {
-    fontSize: 48,
-    marginBottom: 8,
-  },
-  successText: {
-    fontSize: 15,
-    color: colors.text.secondary,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-  emailHighlight: {
-    color: colors.text.primary,
-    fontWeight: '600',
-  },
-});
+
+function createStyles(c: Colors) {
+    return StyleSheet.create({
+    safe: {
+      flex: 1,
+      backgroundColor: c.background.primary,
+    },
+    flex: {
+      flex: 1,
+    },
+    content: {
+      flexGrow: 1,
+      justifyContent: 'center',
+      paddingHorizontal: 24,
+      paddingVertical: 48,
+    },
+    logo: {
+      fontSize: 13,
+      fontWeight: '600',
+      letterSpacing: 2,
+      textTransform: 'uppercase',
+      color: c.accent.primary,
+      marginBottom: 12,
+    },
+    heading: {
+      fontSize: 32,
+      fontWeight: '700',
+      color: c.text.primary,
+      marginBottom: 8,
+    },
+    sub: {
+      fontSize: 15,
+      color: c.text.secondary,
+      marginBottom: 36,
+    },
+    form: {
+      gap: 12,
+    },
+    input: {
+      backgroundColor: c.surface.default,
+      borderRadius: 12,
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+      fontSize: 15,
+      color: c.text.primary,
+      borderWidth: 1,
+      borderColor: c.border.default,
+    },
+    error: {
+      fontSize: 13,
+      color: c.semantic.expense,
+      marginTop: 2,
+    },
+    button: {
+      backgroundColor: c.accent.primary,
+      borderRadius: 12,
+      paddingVertical: 15,
+      alignItems: 'center',
+      marginTop: 8,
+    },
+    buttonDisabled: {
+      opacity: 0.4,
+    },
+    buttonText: {
+      color: c.text.inverse,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    footer: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      marginTop: 32,
+    },
+    footerText: {
+      color: c.text.tertiary,
+      fontSize: 14,
+    },
+    footerLink: {
+      color: c.accent.primary,
+      fontSize: 14,
+      fontWeight: '600',
+    },
+    // Success state
+    successContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingHorizontal: 32,
+      gap: 16,
+    },
+    successIcon: {
+      fontSize: 48,
+      marginBottom: 8,
+    },
+    successText: {
+      fontSize: 15,
+      color: c.text.secondary,
+      textAlign: 'center',
+      lineHeight: 22,
+    },
+    emailHighlight: {
+      color: c.text.primary,
+      fontWeight: '600',
+    },
+  });
+}
+

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { colors, typography, spacing, radius } from '@presentation/theme/index';
+import { useTheme, typography, spacing, radius, Colors } from '@presentation/theme';
 import { Button } from '@presentation/ui/button';
 import { pickAndParseCSV, ParseResult } from '@services/csv-import';
 
@@ -11,6 +11,8 @@ interface StepFilePickProps {
 }
 
 export function StepFilePick({ onPicked, onError }: StepFilePickProps) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [loading, setLoading] = useState(false);
 
   async function handlePick() {
@@ -72,45 +74,49 @@ const HINTS = [
   'Duplicatas são automaticamente ignoradas',
 ];
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: spacing['2xl'],
-    gap: spacing.xl,
-    justifyContent: 'center',
-  },
-  iconWrapper: {
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-  },
-  title: {
-    ...typography.heading.lg,
-    color: colors.text.primary,
-    textAlign: 'center',
-  },
-  subtitle: {
-    ...typography.body.md,
-    color: colors.text.secondary,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-  hints: {
-    backgroundColor: colors.background.tertiary,
-    borderRadius: radius.md,
-    padding: spacing.lg,
-    gap: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-  },
-  hintRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  hintText: {
-    ...typography.body.sm,
-    color: colors.text.secondary,
-    flex: 1,
-  },
-  loader: { marginVertical: spacing.lg },
-});
+
+function createStyles(c: Colors) {
+    return StyleSheet.create({
+    container: {
+      flex: 1,
+      padding: spacing['2xl'],
+      gap: spacing.xl,
+      justifyContent: 'center',
+    },
+    iconWrapper: {
+      alignItems: 'center',
+      marginBottom: spacing.sm,
+    },
+    title: {
+      ...typography.heading.lg,
+      color: c.text.primary,
+      textAlign: 'center',
+    },
+    subtitle: {
+      ...typography.body.md,
+      color: c.text.secondary,
+      textAlign: 'center',
+      lineHeight: 22,
+    },
+    hints: {
+      backgroundColor: c.background.tertiary,
+      borderRadius: radius.md,
+      padding: spacing.lg,
+      gap: spacing.sm,
+      borderWidth: 1,
+      borderColor: c.border.default,
+    },
+    hintRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    hintText: {
+      ...typography.body.sm,
+      color: c.text.secondary,
+      flex: 1,
+    },
+    loader: { marginVertical: spacing.lg },
+  });
+}
+

@@ -6,7 +6,7 @@ import { Transaction } from '@/types';
 import { useCategoryStore } from '@store/category-store';
 import { TransactionCard } from './transaction-card';
 import { EmptyState } from '@presentation/ui/empty-state';
-import { colors, typography, spacing } from '@presentation/theme/index';
+import { useTheme, typography, spacing, Colors } from '@presentation/theme';
 import { formatDate } from '@utils/date';
 
 interface TransactionListProps {
@@ -22,6 +22,8 @@ interface GroupedTransactions {
 }
 
 function groupByDate(transactions: Transaction[]): GroupedTransactions[] {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const map = new Map<string, Transaction[]>();
   transactions.forEach((t) => {
     const key = t.date.split('T')[0];
@@ -40,6 +42,8 @@ export function TransactionList({
   onRefresh,
   refreshing,
 }: TransactionListProps) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const getCategoryById = useCategoryStore((s) => s.getCategoryById);
   const grouped = groupByDate(transactions);
 
@@ -90,21 +94,25 @@ export function TransactionList({
   );
 }
 
-const styles = StyleSheet.create({
-  list: {
-    paddingBottom: 100,
-    gap: spacing['2xl'],
-  },
-  group: {
-    gap: spacing.sm,
-  },
-  dateHeader: {
-    ...typography.label.md,
-    color: colors.text.tertiary,
-    textTransform: 'capitalize',
-    paddingHorizontal: spacing.xs,
-  },
-  items: {
-    gap: spacing.sm,
-  },
-});
+
+function createStyles(c: Colors) {
+    return StyleSheet.create({
+    list: {
+      paddingBottom: 100,
+      gap: spacing['2xl'],
+    },
+    group: {
+      gap: spacing.sm,
+    },
+    dateHeader: {
+      ...typography.label.md,
+      color: c.text.tertiary,
+      textTransform: 'capitalize',
+      paddingHorizontal: spacing.xs,
+    },
+    items: {
+      gap: spacing.sm,
+    },
+  });
+}
+

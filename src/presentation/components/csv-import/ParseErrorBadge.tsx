@@ -1,12 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { colors, typography, spacing, radius } from '@presentation/theme/index';
+import { useTheme, typography, spacing, radius, Colors } from '@presentation/theme';
 
 interface ParseErrorBadgeProps {
   message: string;
 }
 
 export function ParseErrorBadge({ message }: ParseErrorBadgeProps) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   return (
     <View style={styles.badge}>
       <Text style={styles.text}>{message}</Text>
@@ -14,16 +16,20 @@ export function ParseErrorBadge({ message }: ParseErrorBadgeProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  badge: {
-    backgroundColor: colors.semantic.expenseMuted,
-    borderRadius: radius.sm,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
-    alignSelf: 'flex-start',
-  },
-  text: {
-    ...typography.label.sm,
-    color: colors.semantic.expense,
-  },
-});
+
+function createStyles(c: Colors) {
+    return StyleSheet.create({
+    badge: {
+      backgroundColor: c.semantic.expenseMuted,
+      borderRadius: radius.sm,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 2,
+      alignSelf: 'flex-start',
+    },
+    text: {
+      ...typography.label.sm,
+      color: c.semantic.expense,
+    },
+  });
+}
+

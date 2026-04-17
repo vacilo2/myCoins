@@ -8,7 +8,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { colors, typography, spacing, radius } from '@presentation/theme/index';
+import { useTheme, typography, spacing, radius, Colors } from '@presentation/theme';
 import { formatDate, toISODate } from '@utils/date';
 import { ptBR } from 'date-fns/locale';
 import { format, getDaysInMonth, startOfMonth, getDay, addMonths, subMonths } from 'date-fns';
@@ -22,6 +22,8 @@ interface DatePickerFieldProps {
 }
 
 export function DatePickerField({ label, value, onChange }: DatePickerFieldProps) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [open, setOpen] = useState(false);
   const [viewDate, setViewDate] = useState(() => new Date(value + 'T12:00:00'));
   const [selected, setSelected] = useState(() => new Date(value + 'T12:00:00'));
@@ -182,140 +184,144 @@ export function DatePickerField({ label, value, onChange }: DatePickerFieldProps
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const CELL_SIZE = Math.floor((SCREEN_WIDTH - spacing['2xl'] * 2 - spacing.md * 6) / 7);
 
-const styles = StyleSheet.create({
-  wrapper: { gap: spacing.xs },
-  label: { ...typography.label.md, color: colors.text.secondary },
-  field: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    backgroundColor: colors.background.tertiary,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    minHeight: 52,
-  },
-  fieldValue: {
-    ...typography.body.lg,
-    color: colors.text.primary,
-    flex: 1,
-    textTransform: 'capitalize',
-  },
 
-  // Modal
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.55)',
-  },
-  sheet: {
-    backgroundColor: colors.background.secondary,
-    borderTopLeftRadius: radius.xl,
-    borderTopRightRadius: radius.xl,
-    paddingHorizontal: spacing['2xl'],
-    paddingBottom: 36,
-  },
-  handle: {
-    width: 36,
-    height: 4,
-    backgroundColor: colors.border.default,
-    borderRadius: radius.full,
-    alignSelf: 'center',
-    marginTop: spacing.md,
-    marginBottom: spacing.xs,
-  },
-  sheetHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.subtle,
-    marginBottom: spacing.lg,
-  },
-  sheetTitle: { ...typography.heading.sm, color: colors.text.primary },
-  cancelText: { ...typography.label.lg, color: colors.text.secondary },
-  confirmText: { ...typography.label.lg, color: colors.accent.primary, fontWeight: '700' },
+function createStyles(c: Colors) {
+    return StyleSheet.create({
+    wrapper: { gap: spacing.xs },
+    label: { ...typography.label.md, color: c.text.secondary },
+    field: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      backgroundColor: c.background.tertiary,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: c.border.default,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      minHeight: 52,
+    },
+    fieldValue: {
+      ...typography.body.lg,
+      color: c.text.primary,
+      flex: 1,
+      textTransform: 'capitalize',
+    },
+  
+    // Modal
+    overlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.55)',
+    },
+    sheet: {
+      backgroundColor: c.background.secondary,
+      borderTopLeftRadius: radius.xl,
+      borderTopRightRadius: radius.xl,
+      paddingHorizontal: spacing['2xl'],
+      paddingBottom: 36,
+    },
+    handle: {
+      width: 36,
+      height: 4,
+      backgroundColor: c.border.default,
+      borderRadius: radius.full,
+      alignSelf: 'center',
+      marginTop: spacing.md,
+      marginBottom: spacing.xs,
+    },
+    sheetHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: c.border.subtle,
+      marginBottom: spacing.lg,
+    },
+    sheetTitle: { ...typography.heading.sm, color: c.text.primary },
+    cancelText: { ...typography.label.lg, color: c.text.secondary },
+    confirmText: { ...typography.label.lg, color: c.accent.primary, fontWeight: '700' },
+  
+    // Navegação de mês
+    monthNav: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: spacing.lg,
+    },
+    navBtn: {
+      width: 36,
+      height: 36,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: c.background.tertiary,
+      borderRadius: radius.sm,
+    },
+    monthLabel: {
+      ...typography.heading.md,
+      color: c.text.primary,
+      textTransform: 'capitalize',
+    },
+  
+    // Semana
+    weekRow: {
+      flexDirection: 'row',
+      marginBottom: spacing.sm,
+    },
+    weekDay: {
+      width: CELL_SIZE,
+      textAlign: 'center',
+      ...typography.label.sm,
+      color: c.text.tertiary,
+    },
+  
+    // Grade
+    grid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.xs,
+      marginBottom: spacing.lg,
+    },
+    dayCell: {
+      width: CELL_SIZE,
+      height: CELL_SIZE,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: radius.sm,
+    },
+    dayCellToday: {
+      borderWidth: 1,
+      borderColor: c.accent.primary + '66',
+    },
+    dayCellSelected: {
+      backgroundColor: c.accent.primary,
+      borderRadius: radius.full,
+    },
+    dayText: {
+      ...typography.body.md,
+      color: c.text.primary,
+    },
+    dayTextToday: {
+      color: c.accent.primary,
+      fontWeight: '600',
+    },
+    dayTextSelected: {
+      color: c.text.inverse,
+      fontWeight: '700',
+    },
+  
+    // Data selecionada
+    selectedRow: {
+      alignItems: 'center',
+      paddingTop: spacing.sm,
+      borderTopWidth: 1,
+      borderTopColor: c.border.subtle,
+    },
+    selectedLabel: {
+      ...typography.label.lg,
+      color: c.text.secondary,
+      textTransform: 'capitalize',
+    },
+  });
+}
 
-  // Navegação de mês
-  monthNav: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing.lg,
-  },
-  navBtn: {
-    width: 36,
-    height: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.background.tertiary,
-    borderRadius: radius.sm,
-  },
-  monthLabel: {
-    ...typography.heading.md,
-    color: colors.text.primary,
-    textTransform: 'capitalize',
-  },
-
-  // Semana
-  weekRow: {
-    flexDirection: 'row',
-    marginBottom: spacing.sm,
-  },
-  weekDay: {
-    width: CELL_SIZE,
-    textAlign: 'center',
-    ...typography.label.sm,
-    color: colors.text.tertiary,
-  },
-
-  // Grade
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.xs,
-    marginBottom: spacing.lg,
-  },
-  dayCell: {
-    width: CELL_SIZE,
-    height: CELL_SIZE,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: radius.sm,
-  },
-  dayCellToday: {
-    borderWidth: 1,
-    borderColor: colors.accent.primary + '66',
-  },
-  dayCellSelected: {
-    backgroundColor: colors.accent.primary,
-    borderRadius: radius.full,
-  },
-  dayText: {
-    ...typography.body.md,
-    color: colors.text.primary,
-  },
-  dayTextToday: {
-    color: colors.accent.primary,
-    fontWeight: '600',
-  },
-  dayTextSelected: {
-    color: colors.text.inverse,
-    fontWeight: '700',
-  },
-
-  // Data selecionada
-  selectedRow: {
-    alignItems: 'center',
-    paddingTop: spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: colors.border.subtle,
-  },
-  selectedLabel: {
-    ...typography.label.lg,
-    color: colors.text.secondary,
-    textTransform: 'capitalize',
-  },
-});

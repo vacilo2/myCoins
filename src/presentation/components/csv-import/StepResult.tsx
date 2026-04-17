@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { colors, typography, spacing, radius } from '@presentation/theme/index';
+import { useTheme, typography, spacing, radius, Colors } from '@presentation/theme';
 import { Button } from '@presentation/ui/button';
 
 interface ImportResult {
@@ -16,6 +16,8 @@ interface StepResultProps {
 }
 
 export function StepResult({ result, onClose }: StepResultProps) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const { imported, skipped, errors } = result;
 
   return (
@@ -77,6 +79,8 @@ function ResultCard({
   label: string;
   value: number;
 }) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   return (
     <View style={styles.resultCard}>
       <MaterialCommunityIcons name={icon as any} size={24} color={color} />
@@ -86,50 +90,54 @@ function ResultCard({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: spacing['2xl'],
-    gap: spacing.xl,
-    justifyContent: 'center',
-  },
-  iconWrapper: {
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-  },
-  title: {
-    ...typography.heading.lg,
-    color: colors.text.primary,
-    textAlign: 'center',
-  },
-  subtitle: {
-    ...typography.body.md,
-    color: colors.text.secondary,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-  cards: {
-    flexDirection: 'row',
-    gap: spacing.md,
-    justifyContent: 'center',
-  },
-  resultCard: {
-    flex: 1,
-    backgroundColor: colors.background.secondary,
-    borderRadius: radius.md,
-    padding: spacing.lg,
-    alignItems: 'center',
-    gap: spacing.xs,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    maxWidth: 110,
-  },
-  resultValue: {
-    ...typography.heading.lg,
-  },
-  resultLabel: {
-    ...typography.label.sm,
-    color: colors.text.tertiary,
-    textAlign: 'center',
-  },
-});
+
+function createStyles(c: Colors) {
+    return StyleSheet.create({
+    container: {
+      flex: 1,
+      padding: spacing['2xl'],
+      gap: spacing.xl,
+      justifyContent: 'center',
+    },
+    iconWrapper: {
+      alignItems: 'center',
+      marginBottom: spacing.sm,
+    },
+    title: {
+      ...typography.heading.lg,
+      color: c.text.primary,
+      textAlign: 'center',
+    },
+    subtitle: {
+      ...typography.body.md,
+      color: c.text.secondary,
+      textAlign: 'center',
+      lineHeight: 22,
+    },
+    cards: {
+      flexDirection: 'row',
+      gap: spacing.md,
+      justifyContent: 'center',
+    },
+    resultCard: {
+      flex: 1,
+      backgroundColor: c.background.secondary,
+      borderRadius: radius.md,
+      padding: spacing.lg,
+      alignItems: 'center',
+      gap: spacing.xs,
+      borderWidth: 1,
+      borderColor: c.border.default,
+      maxWidth: 110,
+    },
+    resultValue: {
+      ...typography.heading.lg,
+    },
+    resultLabel: {
+      ...typography.label.sm,
+      color: c.text.tertiary,
+      textAlign: 'center',
+    },
+  });
+}
+
